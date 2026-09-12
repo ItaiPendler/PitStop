@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+
+/* PitStop design tokens as Tailwind v4 theme (see DESIGN.md for source values).
+   These generate utilities directly: bg-surface, text-on-surface, rounded-lg,
+   shadow-elevated, font-hebrew, etc. Dark theme only — no light variant. */
+@theme {
+  --color-surface: #0b1326;
+  --color-surface-container-lowest: #060e20;
+  --color-surface-container-low: #131b2e;
+  --color-surface-container: #171f33;
+  --color-surface-container-high: #222a3d;
+  --color-surface-container-highest: #2d3449;
+  --color-surface-bright: #31394d;
+
+  --color-on-surface: #dae2fd;
+  --color-on-surface-variant: #9aa5c4;
+  --color-outline: #a08e7a;
+  --color-outline-variant: #534434;
+
+  --color-primary: #f59e0b;
+  --color-on-primary: #1a1103;
+  --color-primary-container: #613b00;
+  --color-on-primary-container: #ffddb8;
+
+  --color-secondary: #10b981;
+  --color-on-secondary: #00311f;
+  --color-secondary-container: #00311f;
+  --color-on-secondary-container: #6ffbbe;
+
+  --color-tertiary: #ea580c;
+  --color-on-tertiary-container: #7a2800;
+
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  --color-ghost: rgba(241, 245, 249, 0.08);
+  --color-ghost-strong: rgba(241, 245, 249, 0.16);
+
+  --font-hebrew: 'Rubik', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  --spacing-gutter: 1rem;
+  --spacing-gutter-desktop: 1.5rem;
+
+  --shadow-elevated: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+  --shadow-glow-amber: 0 0 16px -2px rgba(245, 158, 11, 0.35);
+  --shadow-glow-emerald: 0 0 16px -2px rgba(16, 185, 129, 0.3);
+}
+
+/* Minimal global base — everything else is component-level Tailwind classes. */
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-surface text-on-surface font-hebrew antialiased;
+  direction: rtl;
+  min-height: 100svh;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+/* Numbers/units stay LTR-ordered inside RTL text (e.g. "14.2 ק״מ/ל").
+   See spec.md §10. Kept as a utility class since it's a bidi concern,
+   not expressible as a single Tailwind utility. */
+.ltr-num {
+  unicode-bidi: plaintext;
+  direction: ltr;
+  display: inline-block;
+  @apply font-mono;
+}
