@@ -1,17 +1,6 @@
 import type { ChangeEvent, InputHTMLAttributes } from 'react';
 import { cn } from '../lib/cn';
 
-/**
- * Actually enforces numeric-only input by sanitizing each keystroke,
- * unlike the old purely-cosmetic `numeric` flag (which only changed
- * direction/font — `inputMode` alone is just a mobile-keyboard hint and
- * never blocked desktop typing or pasting).
- *
- *   - `integer`: digits only (year, odometer, initial odometer km)
- *   - `decimal`: digits + at most one `.` (liters, total price, tank capacity)
- *   - `plate`: digits + dashes (Israeli license plates, e.g. "12-345-67" —
- *     NOT pure numeric, so this must stay separate from `integer`)
- */
 export type NumericKind = 'decimal' | 'integer' | 'plate';
 
 const sanitizeForKind = (value: string, kind: NumericKind): string => {
@@ -34,9 +23,7 @@ const sanitizeForKind = (value: string, kind: NumericKind): string => {
 export interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   hint?: string;
-  /** Renders mono/LTR (odometer, liters, price, dates) without enforcing input — see `numericKind` for real enforcement. */
   numeric?: boolean;
-  /** Enforces numeric-only input by sanitizing keystrokes/pastes; also implies the LTR/mono styling `numeric` gives. */
   numericKind?: NumericKind;
   unit?: string;
   warning?: boolean;

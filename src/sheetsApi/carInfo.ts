@@ -1,8 +1,3 @@
-/**
- * Reads the CarInfo block (rows 4-10, spec.md §6.1) back out of an existing
- * tab. `bootstrapCarTab` only ever writes this block for a fresh tab — this
- * is the read-side counterpart the data-models layer needs to load a `Car`.
- */
 import {
   CAR_INFO_FIRST_ROW,
   CAR_INFO_LAST_ROW,
@@ -15,7 +10,6 @@ import { valuesGet, valuesUpdate, type SheetCellValue } from './restClient';
 const parseOptionalNumber = (cell: SheetCellValue | undefined): number | undefined =>
   cell === '' || cell == null ? undefined : Number(cell);
 
-/** Reads and parses the CarInfo block for a car tab. */
 export const getCarInfo = async (
   accessToken: string,
   spreadsheetId: string,
@@ -41,13 +35,6 @@ export const getCarInfo = async (
   };
 };
 
-/**
- * Overwrites the CarInfo value cells (column B, rows 4-10) on an
- * already-set-up tab. Unlike `bootstrapCarTab`, this never touches the
- * marker row, labels, fuel-log header, or named ranges — those already
- * exist on the tab, so re-writing them here would risk clobbering
- * structure that isn't this call's job.
- */
 export const updateCarInfo = async (
   accessToken: string,
   spreadsheetId: string,

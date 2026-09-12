@@ -1,9 +1,4 @@
-﻿/**
- * Reads and writes the fuel-log rows (data rows only, header excluded) for
- * a car tab — append/update/delete a fill-up. Columns E (price/liter) and
- * F (efficiency) are always ARRAYFORMULAs the sheet computes itself
- * (spec.md §6.2/§7.1) — never written here, only at bootstrap.
- */
+﻿
 import {
   FUEL_LOG_FIRST_DATA_ROW,
   quoteSheetTitle,
@@ -29,8 +24,8 @@ const toRowValues = (entry: FuelEntryValues): (number | string)[] => [
   entry.odometerKm,
   entry.liters,
   entry.totalPrice ?? '',
-  '', // column E is always the price/liter ARRAYFORMULA written once at bootstrap — never written here
-  '', // column F is always the efficiency ARRAYFORMULA written once at bootstrap — never written here
+  '', // formula column
+  '', // formula column
   entry.notes ?? '',
 ];
 
@@ -47,7 +42,6 @@ const fromRowValues = (raw: SheetCellValue[]): FuelEntryValues => ({
   totalPrice: parseOptionalNumber(raw[3]),
 });
 
-/** Extracts the 1-based row number from an `updates.updatedRange` value like `'Corolla'!A15:G15`. */
 const parseRowFromRange = (range: string): number => {
   const match = /![A-Z]+(\d+)/.exec(range);
   const rowNumber = match ? Number(match[1]) : Number.NaN;
@@ -57,7 +51,6 @@ const parseRowFromRange = (range: string): number => {
   return rowNumber;
 };
 
-/** Reads every populated data row currently in the fuel log, in sheet order. */
 export const getFuelLogRows = async (
   accessToken: string,
   spreadsheetId: string,
@@ -75,12 +68,6 @@ export const getFuelLogRows = async (
     .filter(({ values }) => values.date !== '');
 };
 
-/**
- * Appends a new fill-up after the last existing row. Writes only columns
- * A-D and G — columns E and F are never touched here, they're covered
- * end-to-end by the two ARRAYFORMULAs written at bootstrap (schema.ts),
- * which also cover rows typed directly into the sheet by hand.
- */
 export const appendFuelRow = async (
   accessToken: string,
   spreadsheetId: string,
@@ -106,7 +93,6 @@ export const appendFuelRow = async (
   return row;
 };
 
-/** Overwrites an existing row's data (A-D, G); the price/liter and efficiency formulas (E, F) are left untouched. */
 export const updateFuelRow = (
   accessToken: string,
   spreadsheetId: string,
@@ -122,11 +108,6 @@ export const updateFuelRow = (
   ]);
 };
 
-/**
- * Deletes a fill-up row entirely. Sheets shifts rows below up automatically
- * — including the F-column ARRAYFORMULA's own row-13 blank check, so the
- * new first data row is correctly blanked with no extra repair needed here.
- */
 export const deleteFuelRow = (
   accessToken: string,
   spreadsheetId: string,

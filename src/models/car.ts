@@ -1,11 +1,3 @@
-/**
- * The `Car` domain type — a friendly, camelCase view of a car tab's info
- * block (spec.md §6.1/§6.2), distinct from the raw `sheetsApi.CarInfoFields`
- * shape (which mirrors exactly what's written into rows 4-10). `id` is the
- * tab title, which per spec.md §15 decision #4 is always the car's
- * nickname — it's what identifies a car within the spreadsheet, so callers
- * don't have to thread the sheet title and `nickname` around separately.
- */
 import type { CarInfoFields } from '../sheetsApi';
 
 export interface Car {

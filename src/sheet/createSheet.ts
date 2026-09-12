@@ -1,9 +1,3 @@
-/**
- * Creates a brand-new, blank Google Sheet via the Sheets API, for the
- * "create a new PitStop sheet" onboarding path. Actually populating it with
- * the car-info/fuel-log structure (spec.md §6.1/§6.4) is the job of the
- * upcoming sheets-client layer — this just gets a fresh spreadsheet id.
- */
 export interface CreatedSheet {
   id: string;
   name: string;
