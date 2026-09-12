@@ -1,4 +1,6 @@
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY as string | undefined;
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+const APP_ID = CLIENT_ID?.split('-')[0];
 
 let pickerApiLoaded = false;
 
@@ -61,6 +63,8 @@ export const pickSheet = async (accessToken: string): Promise<PickedSheet | unde
       .setDeveloperKey(API_KEY)
       .setOAuthToken(accessToken)
       .setOrigin(window.location.origin);
+
+    if (APP_ID) builder.setAppId(APP_ID);
 
     builder.build().setVisible(true);
   });
