@@ -23,7 +23,7 @@ const formatCurrency = (value: number | undefined) =>
 
 const formatKm = (value: number) => numberFormatter.format(Math.round(value));
 
-/** Parses a 'YYYY-MM-DD' domain date as a local calendar date (avoids UTC-parsing off-by-one-day shifts). */
+// Parse as local time to avoid UTC off-by-one shifts.
 const parseIsoDateLocal = (isoDate: string) => {
   const [year, month, day] = isoDate.split('-').map(Number);
   return new Date(year, month - 1, day);
@@ -33,12 +33,7 @@ const formatEntryDate = (isoDate: string) => dateFormatter.format(parseIsoDateLo
 
 const byRowAscending = (a: FuelEntry, b: FuelEntry) => a.row - b.row;
 
-/**
- * spec.md §7.2 "robust average" over a window of fill-ups: total distance
- * covered divided by the liters used to cover it, excluding the window's
- * first fill (its liters filled the tank *before* the window started, so
- * it isn't distance the window accounts for).
- */
+// Exclude the first fill: its liters powered distance before this window.
 const computeRobustAverage = (window: FuelEntry[]): number | undefined => {
   if (window.length < 2) return undefined;
   const first = window[0];
@@ -48,7 +43,6 @@ const computeRobustAverage = (window: FuelEntry[]): number | undefined => {
   return (last.odometerKm - first.odometerKm) / litersAfterFirst;
 };
 
-/** Calibrates gauge min/max from historical efficiency readings instead of hardcoded bounds. */
 const computeGaugeRange = (efficiencies: number[]): { max: number; min: number } => {
   const minEff = Math.min(...efficiencies);
   const maxEff = Math.max(...efficiencies);
@@ -57,7 +51,6 @@ const computeGaugeRange = (efficiencies: number[]): { max: number; min: number }
   return { max: Math.ceil(maxEff + padding), min: Math.max(0, Math.floor(minEff - padding)) };
 };
 
-/** Total km driven this calendar year: sum of odometer deltas whose *later* fill date falls this year. */
 const computeKmThisYear = (chronological: FuelEntry[]): number | undefined => {
   const currentYear = new Date().getFullYear();
   let total: number | undefined;
@@ -71,14 +64,7 @@ const computeKmThisYear = (chronological: FuelEntry[]): number | undefined => {
   return total;
 };
 
-/**
- * spec.md §7.3 "Cost per 100 km" — lifetime figure: sum of totalPrice over
- * every fill that has both a price and a valid odometer delta from the
- * previous fill, divided by the total km covered by that same set of fills,
- * times 100. Fills missing a price (or the very first fill, which has no
- * prior odometer) are excluded from both the numerator and denominator so
- * the ratio stays consistent.
- */
+// Price-less fills are excluded from both sums so the ratio stays aligned.
 const computeCostPer100Km = (chronological: FuelEntry[]): number | undefined => {
   let costSum = 0;
   let kmSum = 0;
@@ -132,7 +118,6 @@ const EMPTY_CAR_SETUP_FORM: CarSetupFormState = {
 const CURRENT_YEAR = new Date().getFullYear();
 const MIN_CAR_YEAR = 1980;
 
-/** Parses an optional numeric field, treating blank or unparseable input (e.g. a lone ".") as "not provided" instead of writing a literal NaN. */
 const parseOptionalNumber = (raw: string): number | undefined => {
   if (!raw.trim()) return undefined;
   const parsed = Number(raw);

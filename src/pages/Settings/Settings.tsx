@@ -73,7 +73,6 @@ const carToFormState = (car: Car): CarFormState => ({
 const CURRENT_YEAR = new Date().getFullYear();
 const MIN_CAR_YEAR = 1980;
 
-/** Treats blank or unparseable input (e.g. a lone ".") as "not provided" instead of writing a literal NaN. */
 const parseOptionalNumber = (value: string): number | undefined => {
   const trimmed = value.trim();
   if (trimmed === '') return undefined;
@@ -91,7 +90,6 @@ const formStateToFields = (form: CarFormState): Omit<Car, 'id'> => ({
   year: Number(form.year),
 });
 
-/** Mirrors the required-field/year-range validation in Dashboard's `CarSetupForm`. */
 const validateCarForm = (form: CarFormState): string | undefined => {
   const year = Number(form.year);
   const hasRequiredFields =
@@ -135,9 +133,7 @@ export const SettingsPage = () => {
   const isSignedIn = status === AuthStatus.SignedIn;
 
   useEffect(() => {
-    // Deferred via setTimeout so these setState calls run outside the
-    // synchronous effect flush — see eslint-plugin-react-hooks'
-    // `set-state-in-effect` rule (same pattern as `CarDataProvider`).
+    // setTimeout keeps these state updates out of the effect flush.
     const timeoutId = window.setTimeout(() => {
       setFormState(car ? carToFormState(car) : EMPTY_FORM);
       setSaveState('idle');

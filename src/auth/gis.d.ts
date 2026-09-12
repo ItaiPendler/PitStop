@@ -1,5 +1,3 @@
-// Minimal ambient types for the Google Identity Services (GIS) token client.
-// Docs: https://developers.google.com/identity/oauth2/web/reference/js-reference
 export interface GisTokenClient {
   requestAccessToken: (overrides?: { prompt?: '' | 'consent' | 'select_account' }) => void;
 }

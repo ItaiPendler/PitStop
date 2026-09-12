@@ -1,8 +1,3 @@
-﻿/**
- * Writes the fixed CarInfo + FuelLog layout into a brand-new, empty tab —
- * schema marker, car-info block, fuel-log header, and the named ranges the
- * rest of the client reads/writes by name. See spec.md §6.1/§6.4.
- */
 import {
   CAR_INFO_FIRST_ROW,
   CAR_INFO_LABEL_ROW,
@@ -31,10 +26,6 @@ export interface BootstrapTabInput {
   spreadsheetId: string;
 }
 
-/**
- * Bootstraps an empty tab. Renames the tab to the car's nickname (spec.md
- * §15 decision #4), then writes the layout and named ranges.
- */
 export const bootstrapCarTab = async ({
   accessToken,
   carInfo,
@@ -73,12 +64,6 @@ export const bootstrapCarTab = async ({
       values: [FUEL_LOG_HEADER],
     },
     {
-      // Two single-cell ARRAYFORMULAs, each covering their whole column
-      // (see their doc comments in schema.ts) — written once here so any
-      // fill-up row, whether added through the app or typed directly into
-      // the sheet, is calculated by the sheet itself.
-      // `valueInputOption=USER_ENTERED` (used by `valuesBatchUpdate`)
-      // parses these strings as real formulas.
       range: `${quotedTitle}!E${FUEL_LOG_FIRST_DATA_ROW.toString()}`,
       values: [[buildPricePerLiterArrayFormula()]],
     },

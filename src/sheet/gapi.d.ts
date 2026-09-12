@@ -1,5 +1,3 @@
-// Minimal ambient types for the Google Picker (`google.picker`) namespace.
-// Docs: https://developers.google.com/drive/picker/guides/overview
 export interface GooglePickerNamespace {
   Action: { CANCEL: string; PICKED: string };
   DocsView: new (viewId: string) => GooglePickerDocsView;

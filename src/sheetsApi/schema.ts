@@ -1,13 +1,6 @@
-/**
- * The fixed per-car tab layout from spec.md §6.1/§6.2 — one source of truth
- * for every row/column index so a future layout change only needs edits
- * here, not scattered through the client.
- */
-
 export const SCHEMA_MARKER_LABEL = 'PitStop';
 export const SCHEMA_VERSION = 1;
 
-// 1-based row numbers, matching the sheet as a human would read it.
 export const MARKER_ROW = 1;
 export const CAR_INFO_LABEL_ROW = 3;
 export const CAR_INFO_FIRST_ROW = 4;
@@ -15,10 +8,6 @@ export const CAR_INFO_LAST_ROW = 10;
 export const FUEL_LOG_HEADER_ROW = 12;
 export const FUEL_LOG_FIRST_DATA_ROW = 13;
 
-// The bottom row bound for the column-F efficiency ARRAYFORMULA written
-// once at bootstrap (see `buildEfficiencyArrayFormula`) — gives ~987
-// fill-up rows of headroom (decades of normal use) with a simple bounded
-// formula instead of a more complex unbounded/volatile one.
 export const FUEL_LOG_LAST_ROW = 999;
 
 export const NAMED_RANGE_CAR_INFO = 'CarInfo';
@@ -34,7 +23,6 @@ export interface CarInfoFields {
   tankCapacityL?: number;
 }
 
-// Order here fixes the row order of the CarInfo block (rows 4-10).
 export const CAR_INFO_ROW_LABELS: { key: keyof CarInfoFields; label: string }[] = [
   { key: 'make', label: 'Make' },
   { key: 'model', label: 'Model' },
@@ -45,7 +33,6 @@ export const CAR_INFO_ROW_LABELS: { key: keyof CarInfoFields; label: string }[] 
   { key: 'initialOdometerKm', label: 'Initial odometer' },
 ];
 
-// Column A-G header labels for the fuel-log table (row 12).
 export const FUEL_LOG_HEADER = [
   'Date',
   'Odometer (km)',
@@ -56,9 +43,6 @@ export const FUEL_LOG_HEADER = [
   'Notes',
 ];
 
-// Column A (date) is always read back as a `string` here — see
-// `serialDateToIso`/`isoDateToSerial` below for how the raw Sheets serial
-// number gets converted at the read/write boundary.
 export interface FuelEntryValues {
   date: string;
   liters: number;
@@ -69,49 +53,24 @@ export interface FuelEntryValues {
   totalPrice?: number;
 }
 
-// Google Sheets' serial-date epoch: day 0 is 1899-12-30 (not 1900-01-01 —
-// Sheets/Excel keep a fictitious 1900-02-29 in the count).
+// Google Sheets day 0 is 1899-12-30.
 const SERIAL_DATE_EPOCH_MS = Date.UTC(1899, 11, 30);
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-/**
- * Converts a Sheets date serial number (returned by `valuesGet`, which reads
- * `UNFORMATTED_VALUE`/`SERIAL_NUMBER`) into an ISO `'YYYY-MM-DD'` string.
- * Accepts an already-ISO string unchanged so callers can pass either shape
- * safely (e.g. a cell that was left as text by a manual edit).
- */
 export const serialDateToIso = (value: string | number): string => {
   if (typeof value === 'string') return value;
   const ms = SERIAL_DATE_EPOCH_MS + value * MS_PER_DAY;
   return new Date(ms).toISOString().slice(0, 10);
 };
 
-/**
- * The inverse of `serialDateToIso`, used only if a caller needs the raw
- * numeric serial (writes go through `valueInputOption=USER_ENTERED` instead,
- * which parses a plain ISO string directly, so this isn't needed there).
- */
 export const isoDateToSerial = (iso: string): number => {
   const ms = Date.parse(`${iso}T00:00:00Z`);
   return Math.round((ms - SERIAL_DATE_EPOCH_MS) / MS_PER_DAY);
 };
 
-/** Escapes a sheet title for use inside A1-notation ranges. */
 export const quoteSheetTitle = (title: string): string => `'${title.replace(/'/g, "''")}'`;
 
-/**
- * The single column-F ARRAYFORMULA written into cell F13 at bootstrap time
- * (spec.md §7.1) — computes every row from `FUEL_LOG_FIRST_DATA_ROW` to
- * `FUEL_LOG_LAST_ROW` at once, so the efficiency of ANY fill-up row (added
- * through the app, or typed directly into the sheet by hand) is always
- * calculated by the sheet itself, without the app writing anything to
- * column F after the initial setup:
- *
- *   - row === FUEL_LOG_FIRST_DATA_ROW → blank (no previous odometer to
- *     diff against)
- *   - odometer/previous-odometer missing, or liters is 0 → blank
- *   - otherwise → (odometer_now - odometer_prev) / liters_now
- */
+// Bootstrap writes this once; Sheets keeps later rows calculated.
 export const buildEfficiencyArrayFormula = (): string => {
   const first = FUEL_LOG_FIRST_DATA_ROW;
   const last = FUEL_LOG_LAST_ROW;
@@ -124,15 +83,7 @@ export const buildEfficiencyArrayFormula = (): string => {
   );
 };
 
-/**
- * The column-E ARRAYFORMULA written into cell E13 at bootstrap time,
- * mirroring `buildEfficiencyArrayFormula` — computes price-per-liter from
- * the total price (column D) and liters (column C) the user actually
- * types, truncated (not rounded) to 2 decimal places:
- *
- *   - total price missing, or liters is 0 → blank
- *   - otherwise → TRUNC(total_price / liters, 2)
- */
+// Keep price-per-liter sheet-driven for rows added in or outside the app.
 export const buildPricePerLiterArrayFormula = (): string => {
   const first = FUEL_LOG_FIRST_DATA_ROW;
   const last = FUEL_LOG_LAST_ROW;

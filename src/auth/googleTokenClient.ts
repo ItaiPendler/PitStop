@@ -1,8 +1,3 @@
-/**
- * Thin promise-based wrapper around the Google Identity Services (GIS) token
- * client. See spec.md §4.1 — token model only, no client secret, scoped to
- * `drive.file` so the app can only touch the sheet the user explicitly picks.
- */
 import type { GisTokenClient, GisTokenResponse } from './gis';
 
 export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
@@ -10,8 +5,7 @@ export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
 let tokenClient: GisTokenClient | undefined;
-// GIS only lets us register one callback at client-creation time, so we keep
-// the client stable and delegate to whichever request is currently in flight.
+// GIS only supports one callback per client, so each request swaps `pending`.
 let pending:
   { reject: (error: Error) => void; resolve: (response: GisTokenResponse) => void } | undefined;
 
@@ -75,14 +69,9 @@ const getTokenClient = async (): Promise<GisTokenClient> => {
 };
 
 export interface RequestAccessTokenOptions {
-  /** '' = silent/no prompt (used for refresh); 'consent' forces the picker/consent screen. */
   prompt?: '' | 'consent' | 'select_account';
 }
 
-/**
- * Requests (or silently refreshes) an access token. Resolves with the token
- * response, or rejects if the user cancels / an error occurs.
- */
 export const requestAccessToken = async (
   options: RequestAccessTokenOptions = {},
 ): Promise<GisTokenResponse> => {

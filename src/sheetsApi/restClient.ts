@@ -1,8 +1,4 @@
-﻿/**
- * Thin fetch wrapper around the Sheets API v4 REST endpoints used by
- * PitStop. No client library — spec.md §4.1 keeps the app dependency-light
- * and everything auths with the bearer access token from `useAuth()`.
- */
+﻿
 import { SheetsApiError } from './errors';
 
 const BASE_URL = 'https://sheets.googleapis.com/v4/spreadsheets';
@@ -78,8 +74,6 @@ export interface NamedRange {
   range: {
     endColumnIndex?: number;
     endRowIndex?: number;
-    // Omitted by the API when it's `0` — see the comment at `hasNamedRange`
-    // in detectSchema.ts for why callers must not compare this directly.
     sheetId?: number;
     startColumnIndex?: number;
     startRowIndex?: number;
@@ -91,7 +85,6 @@ export interface SpreadsheetMeta {
   namedRanges?: NamedRange[];
 }
 
-/** Fetches sheet titles/ids and named ranges for the whole spreadsheet. */
 export const getSpreadsheetMeta = (
   accessToken: string,
   spreadsheetId: string,
@@ -111,13 +104,7 @@ export const valuesGet = async (
   spreadsheetId: string,
   range: string,
 ): Promise<SheetCellValue[][]> => {
-  // Deliberately omit `dateTimeRenderOption` so it keeps the API default of
-  // `SERIAL_NUMBER`: date cells come back as plain numbers (days since
-  // 1899-12-30), the same units as every other numeric cell. The
-  // alternative, `FORMATTED_STRING`, renders dates using the spreadsheet's
-  // locale-dependent number format (e.g. `M/d/yyyy` vs `d/M/yyyy`), which is
-  // ambiguous to parse back out reliably — see `src/models` for the serial
-  // <-> ISO-date conversion this relies on.
+  // Keep Sheets' default SERIAL_NUMBER date output; formatted strings are locale-ambiguous.
   const data = await request<ValueRange>(
     accessToken,
     `/${spreadsheetId}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`,
@@ -167,7 +154,6 @@ export const valuesAppend = (
     { body: JSON.stringify({ range, values }), method: 'POST' },
   );
 
-/** Generic `spreadsheets.batchUpdate` — for named ranges, renames, row deletes. */
 export const spreadsheetsBatchUpdate = (
   accessToken: string,
   spreadsheetId: string,

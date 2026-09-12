@@ -1,9 +1,3 @@
-/**
- * Wraps the Google Picker so the rest of the app can just call `pickSheet()`
- * and get back the chosen spreadsheet (or undefined if the user cancels).
- * See spec.md §4.1 — the Picker is what actually grants `drive.file` access
- * to the specific spreadsheet the user selects.
- */
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY as string | undefined;
 
 let pickerApiLoaded = false;
@@ -39,10 +33,6 @@ export interface PickedSheet {
   name: string;
 }
 
-/**
- * Opens the Google Picker scoped to spreadsheets and resolves with the
- * chosen file, or `undefined` if the user closes the picker without picking.
- */
 export const pickSheet = async (accessToken: string): Promise<PickedSheet | undefined> => {
   if (!API_KEY) {
     throw new Error('Missing VITE_GOOGLE_API_KEY. Set it in your .env file (see spec.md §4.1).');
