@@ -18,6 +18,7 @@ export interface GooglePickerBuilder {
   addView: (view: GooglePickerDocsView) => GooglePickerBuilder;
   build: () => GooglePicker;
   enableFeature: (feature: string) => GooglePickerBuilder;
+  setAppId: (appId: string) => GooglePickerBuilder;
   setCallback: (callback: (data: GooglePickerResponse) => void) => GooglePickerBuilder;
   setDeveloperKey: (key: string) => GooglePickerBuilder;
   setOAuthToken: (token: string) => GooglePickerBuilder;
