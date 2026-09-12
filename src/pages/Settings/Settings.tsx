@@ -68,9 +68,15 @@ const carToFormState = (car: Car): CarFormState => ({
   year: car.year.toString(),
 });
 
+const CURRENT_YEAR = new Date().getFullYear();
+const MIN_CAR_YEAR = 1980;
+
+/** Treats blank or unparseable input (e.g. a lone ".") as "not provided" instead of writing a literal NaN. */
 const parseOptionalNumber = (value: string): number | undefined => {
   const trimmed = value.trim();
-  return trimmed === '' ? undefined : Number(trimmed);
+  if (trimmed === '') return undefined;
+  const parsed = Number(trimmed);
+  return Number.isNaN(parsed) ? undefined : parsed;
 };
 
 const formStateToFields = (form: CarFormState): Omit<Car, 'id'> => ({
@@ -82,6 +88,23 @@ const formStateToFields = (form: CarFormState): Omit<Car, 'id'> => ({
   tankCapacityL: parseOptionalNumber(form.tankCapacity),
   year: Number(form.year),
 });
+
+/** Mirrors the required-field/year-range validation in Dashboard's `CarSetupForm`. */
+const validateCarForm = (form: CarFormState): string | undefined => {
+  const year = Number(form.year);
+  const hasRequiredFields =
+    form.make.trim() &&
+    form.model.trim() &&
+    form.licensePlate.trim() &&
+    form.nickname.trim() &&
+    form.year.trim() &&
+    !Number.isNaN(year);
+  if (!hasRequiredFields) return 'יש למלא יצרן, דגם, שנה, מספר רישוי וכינוי.';
+  if (year < MIN_CAR_YEAR || year > CURRENT_YEAR + 1) {
+    return `שנת ייצור צריכה להיות בין ${MIN_CAR_YEAR.toString()} ל-${(CURRENT_YEAR + 1).toString()}.`;
+  }
+  return undefined;
+};
 
 const SettingsSection = ({
   children,
@@ -131,6 +154,13 @@ export const SettingsPage = () => {
     };
 
   const handleSave = async () => {
+    const validationError = validateCarForm(formState);
+    if (validationError) {
+      setSaveError(validationError);
+      setSaveState('error');
+      return;
+    }
+
     setSaveState('saving');
     setSaveError(undefined);
     try {
@@ -194,17 +224,15 @@ export const SettingsPage = () => {
           />
           <TextInput
             id="settings-year"
-            inputMode="numeric"
             label="שנת ייצור"
-            numeric
+            numericKind="integer"
             onChange={handleFieldChange('year')}
             value={formState.year}
           />
           <TextInput
             id="settings-license-plate"
-            inputMode="numeric"
             label="מספר רישוי"
-            numeric
+            numericKind="plate"
             onChange={handleFieldChange('licensePlate')}
             value={formState.licensePlate}
           />
@@ -217,9 +245,8 @@ export const SettingsPage = () => {
           <TextInput
             hint="אופציונלי"
             id="settings-tank-capacity"
-            inputMode="decimal"
             label="נפח מיכל"
-            numeric
+            numericKind="decimal"
             onChange={handleFieldChange('tankCapacity')}
             unit="ל׳"
             value={formState.tankCapacity}
@@ -227,9 +254,8 @@ export const SettingsPage = () => {
           <TextInput
             hint="אופציונלי"
             id="settings-initial-odometer"
-            inputMode="numeric"
             label="מד אוץ התחלתי"
-            numeric
+            numericKind="integer"
             onChange={handleFieldChange('initialOdometer')}
             unit="ק״מ"
             value={formState.initialOdometer}

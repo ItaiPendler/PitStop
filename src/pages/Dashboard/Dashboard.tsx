@@ -129,6 +129,16 @@ const EMPTY_CAR_SETUP_FORM: CarSetupFormState = {
   year: '',
 };
 
+const CURRENT_YEAR = new Date().getFullYear();
+const MIN_CAR_YEAR = 1980;
+
+/** Parses an optional numeric field, treating blank or unparseable input (e.g. a lone ".") as "not provided" instead of writing a literal NaN. */
+const parseOptionalNumber = (raw: string): number | undefined => {
+  if (!raw.trim()) return undefined;
+  const parsed = Number(raw);
+  return Number.isNaN(parsed) ? undefined : parsed;
+};
+
 const CarSetupForm = ({ onCreate }: { onCreate: (fields: Omit<Car, 'id'>) => Promise<void> }) => {
   const [form, setForm] = useState<CarSetupFormState>(EMPTY_CAR_SETUP_FORM);
   const [formError, setFormError] = useState<string>();
@@ -155,11 +165,15 @@ const CarSetupForm = ({ onCreate }: { onCreate: (fields: Omit<Car, 'id'>) => Pro
       setFormError('יש למלא יצרן, דגם, שנה, מספר רישוי וכינוי.');
       return;
     }
+    if (year < MIN_CAR_YEAR || year > CURRENT_YEAR + 1) {
+      setFormError(
+        `שנת ייצור צריכה להיות בין ${MIN_CAR_YEAR.toString()} ל-${(CURRENT_YEAR + 1).toString()}.`,
+      );
+      return;
+    }
 
-    const tankCapacityL = form.tankCapacityL.trim() ? Number(form.tankCapacityL) : undefined;
-    const initialOdometerKm = form.initialOdometerKm.trim()
-      ? Number(form.initialOdometerKm)
-      : undefined;
+    const tankCapacityL = parseOptionalNumber(form.tankCapacityL);
+    const initialOdometerKm = parseOptionalNumber(form.initialOdometerKm);
 
     setIsSubmitting(true);
     try {
@@ -206,17 +220,15 @@ const CarSetupForm = ({ onCreate }: { onCreate: (fields: Omit<Car, 'id'>) => Pro
         />
         <TextInput
           id="car-setup-year"
-          inputMode="numeric"
           label="שנת ייצור"
-          numeric
+          numericKind="integer"
           onChange={handleFieldChange('year')}
           value={form.year}
         />
         <TextInput
           id="car-setup-license-plate"
-          inputMode="numeric"
           label="מספר רישוי"
-          numeric
+          numericKind="plate"
           onChange={handleFieldChange('licensePlate')}
           value={form.licensePlate}
         />
@@ -229,9 +241,8 @@ const CarSetupForm = ({ onCreate }: { onCreate: (fields: Omit<Car, 'id'>) => Pro
         <TextInput
           hint="אופציונלי"
           id="car-setup-tank-capacity"
-          inputMode="decimal"
           label="נפח מיכל"
-          numeric
+          numericKind="decimal"
           onChange={handleFieldChange('tankCapacityL')}
           unit="ל׳"
           value={form.tankCapacityL}
@@ -239,9 +250,8 @@ const CarSetupForm = ({ onCreate }: { onCreate: (fields: Omit<Car, 'id'>) => Pro
         <TextInput
           hint="אופציונלי"
           id="car-setup-initial-odometer"
-          inputMode="numeric"
           label="מד אוץ התחלתי"
-          numeric
+          numericKind="integer"
           onChange={handleFieldChange('initialOdometerKm')}
           unit="ק״מ"
           value={form.initialOdometerKm}
