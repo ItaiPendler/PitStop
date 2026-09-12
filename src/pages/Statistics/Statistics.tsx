@@ -113,6 +113,9 @@ const formatDecimal = (value: number | undefined, digits: 1 | 2 = 1) => {
   return digits === 1 ? oneDecimalFormatter.format(value) : twoDecimalFormatter.format(value);
 };
 
+const formatEfficiencyValue = (value: number | undefined) =>
+  value === undefined ? 'לא זמין' : `${formatDecimal(value)} ק״מ/ל`;
+
 const formatEntryDate = (isoDate: string) => dateFormatter.format(parseIsoDateLocal(isoDate));
 
 const formatKm = (value: number | undefined) =>
@@ -407,6 +410,7 @@ const ReadyStatistics = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntr
 
   const rangeLabel =
     range === 'all' ? 'כל התקופה' : range === 'year' ? 'השנה' : `${ROLLING_WINDOW_SIZE} אחרונים`;
+  const needsAnotherFuelingForEfficiency = filteredEntries.length === 1;
 
   const summary = useMemo(() => {
     const averageEfficiency = computeRobustAverage(filteredEntries);
@@ -659,6 +663,15 @@ const ReadyStatistics = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntr
         </Card>
       ) : (
         <>
+          {needsAnotherFuelingForEfficiency ? (
+            <Card className="flex flex-col gap-2 border border-primary/20 bg-primary/10">
+              <h2 className="text-base font-semibold text-on-surface">עוד רגע תהיה כאן יעילות</h2>
+              <p className="text-sm text-on-surface-variant">
+                בטווח שבחרתם יש כרגע תדלוק אחד בלבד, ולכן צריך עוד תדלוק אחד כדי לחשב יעילות.
+              </p>
+            </Card>
+          ) : null}
+
           <section className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <h2 className="text-base font-semibold text-on-surface">צריכה וביצועים</h2>
@@ -668,8 +681,12 @@ const ReadyStatistics = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntr
                 label="ממוצע צריכה רובסטי"
                 value={
                   <MetricCardValue
-                    primary={`${formatDecimal(summary.averageEfficiency)} ק״מ/ל`}
-                    secondary="ממוצע רובסטי"
+                    primary={formatEfficiencyValue(summary.averageEfficiency)}
+                    secondary={
+                      needsAnotherFuelingForEfficiency
+                        ? 'עוד תדלוק אחד כדי לחשב יעילות'
+                        : 'ממוצע רובסטי'
+                    }
                   />
                 }
               />
@@ -677,8 +694,12 @@ const ReadyStatistics = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntr
                 label={`ממוצע ${ROLLING_WINDOW_SIZE} אחרונים`}
                 value={
                   <MetricCardValue
-                    primary={`${formatDecimal(summary.rollingAverageEfficiency)} ק״מ/ל`}
-                    secondary="חלון מתגלגל"
+                    primary={formatEfficiencyValue(summary.rollingAverageEfficiency)}
+                    secondary={
+                      needsAnotherFuelingForEfficiency
+                        ? 'עוד תדלוק אחד כדי לחשב יעילות'
+                        : 'חלון מתגלגל'
+                    }
                   />
                 }
               />
@@ -686,11 +707,13 @@ const ReadyStatistics = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntr
                 label="התדלוק הטוב ביותר"
                 value={
                   <MetricCardValue
-                    primary={`${formatDecimal(summary.bestFill?.efficiencyKmPerLiter)} ק״מ/ל`}
+                    primary={formatEfficiencyValue(summary.bestFill?.efficiencyKmPerLiter)}
                     secondary={
                       summary.bestFill
                         ? formatEntryDate(summary.bestFill.date)
-                        : 'אין עדיין מספיק נתונים'
+                        : needsAnotherFuelingForEfficiency
+                          ? 'עוד תדלוק אחד כדי לחשב יעילות'
+                          : 'אין עדיין מספיק נתונים'
                     }
                   />
                 }
@@ -699,11 +722,13 @@ const ReadyStatistics = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntr
                 label="התדלוק החלש ביותר"
                 value={
                   <MetricCardValue
-                    primary={`${formatDecimal(summary.worstFill?.efficiencyKmPerLiter)} ק״מ/ל`}
+                    primary={formatEfficiencyValue(summary.worstFill?.efficiencyKmPerLiter)}
                     secondary={
                       summary.worstFill
                         ? formatEntryDate(summary.worstFill.date)
-                        : 'אין עדיין מספיק נתונים'
+                        : needsAnotherFuelingForEfficiency
+                          ? 'עוד תדלוק אחד כדי לחשב יעילות'
+                          : 'אין עדיין מספיק נתונים'
                     }
                   />
                 }

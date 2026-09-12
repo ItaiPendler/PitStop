@@ -19,10 +19,11 @@ interface FuelingValidation {
 }
 
 interface FuelingFormProps {
-  baseOdometerKm: number | undefined;
+  initialOdometerKm: number | undefined;
   isEditMode: boolean;
   siblingEntries: FuelEntry[];
   entry?: FuelEntry;
+  previousEntry?: FuelEntry;
   row?: number;
 }
 
@@ -120,15 +121,15 @@ const ReadinessFallback = ({ description, title }: { description: string; title:
 };
 
 const validateFuelingForm = ({
-  baseOdometerKm,
   form,
   isEditMode,
+  previousEntry,
   row,
   siblingEntries,
 }: {
-  baseOdometerKm: number | undefined;
   form: FuelingFormState;
   isEditMode: boolean;
+  previousEntry: FuelEntry | undefined;
   row: number | undefined;
   siblingEntries: FuelEntry[];
 }): FuelingValidation => {
@@ -148,8 +149,8 @@ const validateFuelingForm = ({
   const odometerKm = parseRequiredNumber(form.odometerKm);
   if (odometerKm === undefined) {
     errors.odometerKm = 'יש להזין קריאת מד אוץ.';
-  } else if (baseOdometerKm !== undefined && odometerKm < baseOdometerKm) {
-    warnings.odometerKm = `קריאת מד האוץ נמוכה מהקריאה האחרונה (${formatKm(baseOdometerKm)} ק״מ). אפשר לשמור אם זה מכוון.`;
+  } else if (previousEntry && odometerKm <= previousEntry.odometerKm) {
+    warnings.odometerKm = `קריאת מד האוץ נמוכה או זהה לתדלוק הקודם (${formatKm(previousEntry.odometerKm)} ק״מ). בדקו שהמספר נכון לפני השמירה.`;
   }
 
   if (!form.date) {
@@ -178,26 +179,28 @@ const validateFuelingForm = ({
 };
 
 const FuelingForm = (props: FuelingFormProps) => {
-  const { baseOdometerKm, entry, isEditMode, row, siblingEntries } = props;
+  const { entry, initialOdometerKm, isEditMode, previousEntry, row, siblingEntries } = props;
   const navigate = useNavigate();
   const { addFuelEntry, deleteFuelEntry, updateFuelEntry } = useCarData();
   const [form, setForm] = useState<FuelingFormState>(() =>
     entry ? fuelEntryToFormState(entry) : createEmptyFormState(),
   );
   const [action, setAction] = useState<'deleting' | 'idle' | 'saving'>('idle');
+  const [isOdometerOverrideConfirmed, setIsOdometerOverrideConfirmed] = useState(false);
   const [saveError, setSaveError] = useState<string>();
   const [showValidation, setShowValidation] = useState(false);
+  const [showOverridePrompt, setShowOverridePrompt] = useState(false);
 
   const validation = useMemo(
     () =>
       validateFuelingForm({
-        baseOdometerKm,
         form,
         isEditMode,
+        previousEntry,
         row,
         siblingEntries,
       }),
-    [baseOdometerKm, form, isEditMode, row, siblingEntries],
+    [form, isEditMode, previousEntry, row, siblingEntries],
   );
 
   const isSubmitting = action !== 'idle';
@@ -208,16 +211,14 @@ const FuelingForm = (props: FuelingFormProps) => {
         ...current,
         [field]: event.target.value,
       }));
+      if (field === 'odometerKm') {
+        setIsOdometerOverrideConfirmed(false);
+        setShowOverridePrompt(false);
+      }
       setSaveError(undefined);
     };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setShowValidation(true);
-    setSaveError(undefined);
-
-    if (Object.keys(validation.errors).length > 0) return;
-
+  const submitFueling = async () => {
     const liters = parseRequiredNumber(form.liters);
     const odometerKm = parseRequiredNumber(form.odometerKm);
     const totalPrice = parseRequiredNumber(form.totalPrice);
@@ -253,6 +254,27 @@ const FuelingForm = (props: FuelingFormProps) => {
     }
   };
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setShowValidation(true);
+    setSaveError(undefined);
+
+    if (Object.keys(validation.errors).length > 0) return;
+
+    if (validation.warnings.odometerKm && !isOdometerOverrideConfirmed) {
+      setShowOverridePrompt(true);
+      return;
+    }
+
+    await submitFueling();
+  };
+
+  const handleOverrideConfirm = async () => {
+    setIsOdometerOverrideConfirmed(true);
+    setShowOverridePrompt(false);
+    await submitFueling();
+  };
+
   const handleDelete = async () => {
     if (row === undefined) return;
 
@@ -275,11 +297,13 @@ const FuelingForm = (props: FuelingFormProps) => {
     }
   };
 
-  const odometerHint =
-    validation.warnings.odometerKm ??
-    (baseOdometerKm !== undefined
-      ? `קריאת הייחוס האחרונה: ${formatKm(baseOdometerKm)} ק״מ`
-      : 'אין קריאת ייחוס קודמת — זהו כנראה התדלוק הראשון.');
+  const odometerHint = validation.warnings.odometerKm
+    ? validation.warnings.odometerKm
+    : previousEntry
+      ? `התדלוק הקודם: ${formatKm(previousEntry.odometerKm)} ק״מ · ${formatEntryDate(previousEntry.date)}`
+      : initialOdometerKm !== undefined
+        ? `אין תדלוק קודם. מד האוץ ההתחלתי של הרכב: ${formatKm(initialOdometerKm)} ק״מ`
+        : 'אין עדיין תדלוק קודם — זהו כנראה התדלוק הראשון.';
 
   return (
     <Card className="flex flex-col gap-5" variant="hero">
@@ -364,6 +388,36 @@ const FuelingForm = (props: FuelingFormProps) => {
         {validation.warnings.duplicate ? (
           <p className="text-sm text-tertiary">{validation.warnings.duplicate}</p>
         ) : null}
+        {showOverridePrompt && validation.warnings.odometerKm ? (
+          <div className="flex flex-col gap-3 rounded-lg border border-tertiary/30 bg-tertiary/10 p-4">
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-semibold text-tertiary">בדיקת קריאת מד אוץ</p>
+              <p className="text-sm text-on-surface">{validation.warnings.odometerKm}</p>
+              <p className="text-xs text-on-surface-variant">
+                אפשר לחזור לעריכה או לאשר שמירה בכל זאת.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                disabled={isSubmitting}
+                fullWidth
+                onClick={() => setShowOverridePrompt(false)}
+                type="button"
+                variant="secondary"
+              >
+                חזרה לעריכה
+              </Button>
+              <Button
+                disabled={isSubmitting}
+                fullWidth
+                onClick={() => void handleOverrideConfirm()}
+                type="button"
+              >
+                {action === 'saving' ? 'שומר…' : 'שמירה בכל זאת'}
+              </Button>
+            </div>
+          </div>
+        ) : null}
         {saveError ? <p className="text-sm text-tertiary">{saveError}</p> : null}
 
         <div className="flex flex-col gap-3 pt-2">
@@ -411,8 +465,14 @@ export const AddEditFuelingPage = () => {
     row === undefined || Number.isNaN(row)
       ? undefined
       : fuelEntries.find((item) => item.row === row);
-  const latestEntry = chronological[chronological.length - 1];
-  const baseOdometerKm = latestEntry?.odometerKm ?? car?.initialOdometerKm;
+  const entryIndex =
+    row === undefined || Number.isNaN(row) ? -1 : chronological.findIndex((item) => item.row === row);
+  const previousEntry =
+    isEditMode && entryIndex > 0
+      ? chronological[entryIndex - 1]
+      : !isEditMode
+        ? chronological[chronological.length - 1]
+        : undefined;
 
   if (status === 'idle' || status === 'loading') return <LoadingState />;
   if (status === 'error') {
@@ -432,10 +492,11 @@ export const AddEditFuelingPage = () => {
 
   return (
     <FuelingForm
-      baseOdometerKm={baseOdometerKm}
       entry={entry}
+      initialOdometerKm={car.initialOdometerKm}
       isEditMode={isEditMode}
       key={rowParam ?? 'new'}
+      previousEntry={previousEntry}
       row={row}
       siblingEntries={fuelEntries}
     />

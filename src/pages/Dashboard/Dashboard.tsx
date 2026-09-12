@@ -201,7 +201,8 @@ const CarSetupForm = ({ onCreate }: { onCreate: (fields: Omit<Car, 'id'>) => Pro
         <span className="text-xs font-medium text-on-surface-variant">שלב ראשון</span>
         <h2 className="text-lg font-semibold text-on-surface">הוספת פרטי הרכב</h2>
         <p className="text-sm text-on-surface-variant">
-          הגיליון המחובר עדיין ריק — נמלא את פרטי הרכב כדי להתחיל לתעד תדלוקים.
+          הגיליון המחובר עדיין ריק. אחרי שממלאים את פרטי הרכב, PitStop ייצור אוטומטית את מבנה
+          הלשונית ויכין אותה לתדלוקים.
         </p>
       </div>
 
@@ -260,7 +261,7 @@ const CarSetupForm = ({ onCreate }: { onCreate: (fields: Omit<Car, 'id'>) => Pro
         {formError && <p className="text-sm text-tertiary">{formError}</p>}
 
         <Button disabled={isSubmitting} fullWidth type="submit">
-          {isSubmitting ? 'יוצר רכב…' : 'יצירת הרכב'}
+          {isSubmitting ? 'יוצר מבנה רכב…' : 'יצירת הרכב והמבנה'}
         </Button>
       </form>
     </Card>
@@ -348,7 +349,7 @@ const ReadyDashboard = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntry
           </>
         ) : (
           <p className="py-6 text-center text-sm text-on-surface-variant">
-            עוד תדלוק אחד ותהיה כאן קריאת צריכה ראשונה.
+            עוד תדלוק אחד כדי לחשב יעילות.
           </p>
         )}
       </Card>
