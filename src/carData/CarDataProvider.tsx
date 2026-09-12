@@ -147,16 +147,28 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
     async (entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'pricePerLiter' | 'row'>) => {
       const tab = currentTabRef.current;
       if (!sheet || !tab) throw new Error('לא נמצאה לשונית רכב פעילה.');
+      const previousFuelEntries = fuelEntries;
+      const optimisticRow =
+        Math.max(0, ...previousFuelEntries.map((fuelEntry) => fuelEntry.row)) + 1;
+      setError(undefined);
+      setFuelEntries([
+        ...previousFuelEntries,
+        {
+          ...entry,
+          row: optimisticRow,
+        },
+      ]);
       try {
         const token = await withFreshToken();
         await appendFuelRow(token, sheet.id, tab.sheetTitle, toFuelEntryValues(entry));
         await refresh();
       } catch (addError) {
+        setFuelEntries(previousFuelEntries);
         setError(addError instanceof Error ? addError.message : 'שגיאה בהוספת תדלוק.');
         throw addError;
       }
     },
-    [refresh, sheet, withFreshToken],
+    [fuelEntries, refresh, sheet, withFreshToken],
   );
 
   const updateFuelEntry = useCallback(
@@ -166,16 +178,24 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
     ) => {
       const tab = currentTabRef.current;
       if (!sheet || !tab) throw new Error('לא נמצאה לשונית רכב פעילה.');
+      const previousFuelEntries = fuelEntries;
+      setError(undefined);
+      setFuelEntries(
+        previousFuelEntries.map((fuelEntry) =>
+          fuelEntry.row === row ? { ...fuelEntry, ...entry } : fuelEntry,
+        ),
+      );
       try {
         const token = await withFreshToken();
         await updateFuelRow(token, sheet.id, tab.sheetTitle, row, toFuelEntryValues(entry));
         await refresh();
       } catch (updateError) {
+        setFuelEntries(previousFuelEntries);
         setError(updateError instanceof Error ? updateError.message : 'שגיאה בעדכון תדלוק.');
         throw updateError;
       }
     },
-    [refresh, sheet, withFreshToken],
+    [fuelEntries, refresh, sheet, withFreshToken],
   );
 
   const updateCar = useCallback(
@@ -198,16 +218,20 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
     async (row: number) => {
       const tab = currentTabRef.current;
       if (!sheet || !tab) throw new Error('לא נמצאה לשונית רכב פעילה.');
+      const previousFuelEntries = fuelEntries;
+      setError(undefined);
+      setFuelEntries(previousFuelEntries.filter((fuelEntry) => fuelEntry.row !== row));
       try {
         const token = await withFreshToken();
         await deleteFuelRow(token, sheet.id, tab.sheetId, row);
         await refresh();
       } catch (deleteError) {
+        setFuelEntries(previousFuelEntries);
         setError(deleteError instanceof Error ? deleteError.message : 'שגיאה במחיקת תדלוק.');
         throw deleteError;
       }
     },
-    [refresh, sheet, withFreshToken],
+    [fuelEntries, refresh, sheet, withFreshToken],
   );
 
   const value: CarDataState = {

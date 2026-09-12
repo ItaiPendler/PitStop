@@ -29,9 +29,12 @@ export const AppShell = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isFullScreenPage = location.pathname === ROUTES.add.path;
-  const currentTitle = Object.values(ROUTES).find(
-    (route) => route.path === location.pathname,
-  )?.title;
+  const currentTitle =
+    location.pathname === ROUTES.add.path
+      ? new URLSearchParams(location.search).get('row')
+        ? 'עריכת תדלוק'
+        : ROUTES.add.title
+      : Object.values(ROUTES).find((route) => route.path === location.pathname)?.title;
 
   const leftItems: NavItem[] = NAV_ROUTES.filter((route) => route.nav?.side === 'left').map(
     (route) => {

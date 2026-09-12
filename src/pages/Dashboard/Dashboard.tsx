@@ -284,7 +284,7 @@ const EmptyFuelEntries = ({ car }: { car: Car }) => {
         <p className="text-sm text-on-surface-variant">
           עדיין אין תדלוקים — הוסיפו את התדלוק הראשון
         </p>
-        <Button onClick={() => navigate(ROUTES.add.path)} type="button">
+        <Button className="text-sm" onClick={() => navigate(ROUTES.add.path)} type="button">
           הוספת תדלוק
         </Button>
       </Card>
@@ -293,6 +293,7 @@ const EmptyFuelEntries = ({ car }: { car: Car }) => {
 };
 
 const ReadyDashboard = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntry[] }) => {
+  const navigate = useNavigate();
   const chronological = useMemo(() => [...fuelEntries].sort(byRowAscending), [fuelEntries]);
   const newestFirst = useMemo(() => [...chronological].reverse(), [chronological]);
   const latest = chronological[chronological.length - 1];
@@ -378,6 +379,7 @@ const ReadyDashboard = ({ car, fuelEntries }: { car: Car; fuelEntries: FuelEntry
             }
             key={entry.row}
             meta={`${entry.liters.toFixed(1)} ליטר · ${formatKm(entry.odometerKm)} ק״מ`}
+            onClick={() => navigate(`${ROUTES.add.path}?row=${entry.row.toString()}`)}
             status={isGoodEfficiency(entry.efficiencyKmPerLiter) ? 'good' : 'warn'}
           />
         ))}
