@@ -12,6 +12,7 @@ export interface CarDataState {
   fuelEntries: FuelEntry[];
   refresh: () => Promise<void>;
   status: CarDataStatus;
+  updateCar: (fields: Omit<Car, 'id'>) => Promise<void>;
   updateFuelEntry: (
     row: number,
     entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'row'>,

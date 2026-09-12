@@ -1,12 +1,18 @@
-import { useState, type ChangeEvent, type ReactNode } from 'react';
+import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../app/routes';
 import { AuthStatus, useAuth } from '../../auth';
 import { Button, Card, Chip, TextInput } from '../../components';
+import { useCarData } from '../../carData';
+import type { Car } from '../../models';
+import { useSheet } from '../../sheet';
 import {
   settingsCarCard,
   settingsCarDetails,
   settingsCarLabel,
   settingsCarList,
   settingsCarRow,
+  settingsErrorText,
   settingsFieldGrid,
   settingsInlineHint,
   settingsInlineSuccess,
@@ -35,13 +41,6 @@ interface CarFormState {
   year: string;
 }
 
-interface CarProfile {
-  details: string;
-  form: CarFormState;
-  id: string;
-  label: string;
-}
-
 interface SettingsSectionProps {
   children: ReactNode;
   title: string;
@@ -49,55 +48,40 @@ interface SettingsSectionProps {
   variant?: 'default' | 'elevated' | 'hero';
 }
 
-const MOCK_CARS: CarProfile[] = [
-  {
-    details: 'Toyota Corolla · 2018',
-    form: {
-      initialOdometer: '41200',
-      licensePlate: '12-345-67',
-      make: 'Toyota',
-      model: 'Corolla',
-      nickname: 'האוטו שלי',
-      tankCapacity: '50',
-      year: '2018',
-    },
-    id: 'my-car',
-    label: 'האוטו שלי',
-  },
-  {
-    details: 'Skoda Octavia · 2021',
-    form: {
-      initialOdometer: '',
-      licensePlate: '34-567-89',
-      make: 'Skoda',
-      model: 'Octavia',
-      nickname: 'רכב העבודה',
-      tankCapacity: '45',
-      year: '2021',
-    },
-    id: 'work-car',
-    label: 'רכב העבודה',
-  },
-  {
-    details: 'Mazda 3 · 2016',
-    form: {
-      initialOdometer: '98650',
-      licensePlate: '56-789-01',
-      make: 'Mazda',
-      model: '3',
-      nickname: 'רכב סוף השבוע',
-      tankCapacity: '',
-      year: '2016',
-    },
-    id: 'weekend-car',
-    label: 'רכב סוף השבוע',
-  },
-];
-
-const ACTIVE_SHEET = {
-  link: 'https://docs.google.com/spreadsheets/d/1PitStopDemoSheet1234567890/edit',
-  name: 'PitStop · משפחה',
+const EMPTY_FORM: CarFormState = {
+  initialOdometer: '',
+  licensePlate: '',
+  make: '',
+  model: '',
+  nickname: '',
+  tankCapacity: '',
+  year: '',
 };
+
+const carToFormState = (car: Car): CarFormState => ({
+  initialOdometer: car.initialOdometerKm?.toString() ?? '',
+  licensePlate: car.licensePlate,
+  make: car.make,
+  model: car.model,
+  nickname: car.nickname,
+  tankCapacity: car.tankCapacityL?.toString() ?? '',
+  year: car.year.toString(),
+});
+
+const parseOptionalNumber = (value: string): number | undefined => {
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : Number(trimmed);
+};
+
+const formStateToFields = (form: CarFormState): Omit<Car, 'id'> => ({
+  initialOdometerKm: parseOptionalNumber(form.initialOdometer),
+  licensePlate: form.licensePlate,
+  make: form.make,
+  model: form.model,
+  nickname: form.nickname,
+  tankCapacityL: parseOptionalNumber(form.tankCapacity),
+  year: Number(form.year),
+});
 
 const SettingsSection = ({
   children,
@@ -114,15 +98,28 @@ const SettingsSection = ({
   </Card>
 );
 
-const getCarProfile = (carId: string) => MOCK_CARS.find((car) => car.id === carId) ?? MOCK_CARS[0];
-
 export const SettingsPage = () => {
   const { signOut, status } = useAuth();
-  const [activeCarId, setActiveCarId] = useState(MOCK_CARS[0].id);
-  const [formState, setFormState] = useState<CarFormState>({ ...MOCK_CARS[0].form });
-  const [isSaved, setIsSaved] = useState(false);
+  const { car, error: carError, refresh, status: carStatus, updateCar } = useCarData();
+  const { disconnect, sheet } = useSheet();
+  const navigate = useNavigate();
+  const [formState, setFormState] = useState<CarFormState>(EMPTY_FORM);
+  const [saveState, setSaveState] = useState<'error' | 'idle' | 'saved' | 'saving'>('idle');
+  const [saveError, setSaveError] = useState<string>();
 
   const isSignedIn = status === AuthStatus.SignedIn;
+
+  useEffect(() => {
+    // Deferred via setTimeout so these setState calls run outside the
+    // synchronous effect flush — see eslint-plugin-react-hooks'
+    // `set-state-in-effect` rule (same pattern as `CarDataProvider`).
+    const timeoutId = window.setTimeout(() => {
+      setFormState(car ? carToFormState(car) : EMPTY_FORM);
+      setSaveState('idle');
+      setSaveError(undefined);
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [car]);
 
   const handleFieldChange =
     (field: keyof CarFormState) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -130,29 +127,58 @@ export const SettingsPage = () => {
         ...current,
         [field]: event.target.value,
       }));
-      setIsSaved(false);
+      setSaveState('idle');
     };
 
-  const handleCarSelect = (carId: string) => {
-    const nextCar = getCarProfile(carId);
-
-    setActiveCarId(nextCar.id);
-    setFormState({ ...nextCar.form });
-    setIsSaved(false);
+  const handleSave = async () => {
+    setSaveState('saving');
+    setSaveError(undefined);
+    try {
+      await updateCar(formStateToFields(formState));
+      setSaveState('saved');
+    } catch (saveErr) {
+      setSaveError(saveErr instanceof Error ? saveErr.message : 'שגיאה בשמירת פרטי הרכב.');
+      setSaveState('error');
+    }
   };
 
-  const handleSave = () => {
-    setIsSaved(true);
+  const handleDisconnectSheet = () => {
+    disconnect();
+    navigate(ROUTES.onboarding.path);
   };
 
-  return (
-    <div className={settingsPage()}>
-      <SettingsSection eyebrow="פרטי רכב" title="עריכת פרטי הרכב" variant="hero">
-        <p className={settingsSectionBody()}>
-          זהו שלד ה־UI למסך ההגדרות. שמירה מלאה אל Google Sheets תחובר בשלב הבא, אבל כבר אפשר לעדכן
-          את השדות ולבדוק את הזרימה.
-        </p>
+  const renderCarInfoSection = () => {
+    if (carStatus === 'idle' || carStatus === 'loading') {
+      return <p className={settingsSectionBody()}>טוען נתונים…</p>;
+    }
 
+    if (carStatus === 'error') {
+      return (
+        <>
+          <p className={settingsErrorText()}>{carError ?? 'שגיאה בטעינת נתוני הרכב.'}</p>
+          <Button fullWidth onClick={() => void refresh()} type="button" variant="secondary">
+            נסה שוב
+          </Button>
+        </>
+      );
+    }
+
+    if (carStatus === 'needs-setup') {
+      return (
+        <>
+          <p className={settingsSectionBody()}>
+            עדיין לא הוגדר רכב בגיליון המחובר. יש להגדיר רכב במסך הבית לפני שאפשר לערוך כאן את
+            פרטיו.
+          </p>
+          <Button fullWidth onClick={() => navigate(ROUTES.home.path)} type="button">
+            מעבר למסך הבית
+          </Button>
+        </>
+      );
+    }
+
+    return (
+      <>
         <div className={settingsFieldGrid()}>
           <TextInput
             id="settings-make"
@@ -210,73 +236,87 @@ export const SettingsPage = () => {
           />
         </div>
 
-        <Button disabled={isSaved} fullWidth onClick={handleSave} type="button">
-          {isSaved ? 'נשמר מקומית' : 'שמירת שינויים'}
+        <Button
+          disabled={saveState === 'saving'}
+          fullWidth
+          onClick={() => void handleSave()}
+          type="button"
+        >
+          {saveState === 'saving' ? 'שומר…' : 'שמירת שינויים'}
         </Button>
-        {isSaved ? (
-          <p className={settingsInlineSuccess()}>
-            הטיוטה נשמרה מקומית. חיבור הכתיבה לגיליון יתווסף בשלב הבא.
-          </p>
+        {saveState === 'saved' ? <p className={settingsInlineSuccess()}>נשמר.</p> : null}
+        {saveState === 'error' ? (
+          <p className={settingsErrorText()}>{saveError ?? 'שגיאה בשמירת פרטי הרכב.'}</p>
         ) : null}
+      </>
+    );
+  };
+
+  return (
+    <div className={settingsPage()}>
+      <SettingsSection eyebrow="פרטי רכב" title="עריכת פרטי הרכב" variant="hero">
+        {renderCarInfoSection()}
       </SettingsSection>
 
       <SettingsSection eyebrow="טאבים בגיליון" title="מעבר בין רכבים">
         <p className={settingsSectionBody()}>
-          כל רכב נשמר בטאב נפרד באותו גיליון. בחירה כאן מחליפה בין הטאבים ומציגה טיוטת פרטים תואמת.
+          כל רכב נשמר בטאב נפרד באותו גיליון. כרגע נתמך רק רכב אחד לגיליון — מעבר בין כמה רכבים
+          יתווסף בעדכון עתידי.
         </p>
 
-        <div className={settingsCarList()}>
-          {MOCK_CARS.map((car) => {
-            const isActive = car.id === activeCarId;
-
-            return (
-              <button
-                aria-pressed={isActive}
-                className={settingsCarRow({ active: isActive })}
-                key={car.id}
-                onClick={() => handleCarSelect(car.id)}
-                type="button"
-              >
-                <div className={settingsCarCard()}>
-                  <div>
-                    <p className={settingsCarLabel()}>{car.label}</p>
-                    <p className={settingsCarDetails()}>{car.details}</p>
-                  </div>
-                  {isActive ? <Chip>טאב פעיל</Chip> : null}
+        {carStatus === 'ready' && car ? (
+          <div className={settingsCarList()}>
+            <div className={settingsCarRow({ active: true })}>
+              <div className={settingsCarCard()}>
+                <div>
+                  <p className={settingsCarLabel()}>{car.nickname}</p>
+                  <p className={settingsCarDetails()}>
+                    {car.make} {car.model} · {car.year}
+                  </p>
                 </div>
-              </button>
-            );
-          })}
-        </div>
+                <Chip>טאב פעיל</Chip>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
-        <Button fullWidth type="button" variant="secondary">
-          הוספת רכב חדש
+        <Button disabled fullWidth type="button" variant="secondary">
+          הוספת רכב חדש (בקרוב)
         </Button>
         <p className={settingsInlineHint()}>
-          כפתור זה ישמש בהמשך ליצירת טאב חדש בגיליון ולפתיחת טופס רכב ריק.
+          תמיכה במספר רכבים באותו גיליון עדיין לא זמינה — הכפתור יופעל בעדכון עתידי.
         </p>
       </SettingsSection>
 
       <SettingsSection eyebrow="חיבור נתונים" title="הגיליון המחובר" variant="elevated">
-        <div className={settingsMetaGrid()}>
-          <Card className={settingsReadonlyCard()}>
-            <span className={settingsReadonlyLabel()}>שם הגיליון</span>
-            <p className={settingsReadonlyValue()}>{ACTIVE_SHEET.name}</p>
-          </Card>
+        {sheet ? (
+          <div className={settingsMetaGrid()}>
+            <Card className={settingsReadonlyCard()}>
+              <span className={settingsReadonlyLabel()}>שם הגיליון</span>
+              <p className={settingsReadonlyValue()}>{sheet.name}</p>
+            </Card>
 
-          <Card className={settingsReadonlyCard()}>
-            <span className={settingsReadonlyLabel()}>קישור</span>
-            <a className={settingsLink()} href={ACTIVE_SHEET.link} rel="noreferrer" target="_blank">
-              פתיחת הגיליון ב־Google Sheets
-            </a>
-          </Card>
-        </div>
+            <Card className={settingsReadonlyCard()}>
+              <span className={settingsReadonlyLabel()}>קישור</span>
+              <a
+                className={settingsLink()}
+                href={`https://docs.google.com/spreadsheets/d/${sheet.id}/edit`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                פתיחת הגיליון ב־Google Sheets
+              </a>
+            </Card>
+          </div>
+        ) : (
+          <p className={settingsSectionBody()}>לא מחובר גיליון כרגע.</p>
+        )}
 
-        <Button fullWidth type="button" variant="secondary">
+        <Button fullWidth onClick={handleDisconnectSheet} type="button" variant="secondary">
           החלפת גיליון
         </Button>
         <p className={settingsInlineHint()}>
-          חיבור ל־Google Picker נמצא בפיתוח, ולכן הכפתור נשאר כרגע כשלד ברור למסך.
+          ניתוק הגיליון המחובר ומעבר למסך החיבור כדי לבחור או ליצור גיליון אחר.
         </p>
       </SettingsSection>
 

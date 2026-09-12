@@ -39,9 +39,11 @@ export interface NamedRange {
   name: string;
   namedRangeId: string;
   range: {
-    sheetId: number;
     endColumnIndex?: number;
     endRowIndex?: number;
+    // Omitted by the API when it's `0` — see the comment at `hasNamedRange`
+    // in detectSchema.ts for why callers must not compare this directly.
+    sheetId?: number;
     startColumnIndex?: number;
     startRowIndex?: number;
   };

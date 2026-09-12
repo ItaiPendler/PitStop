@@ -18,6 +18,7 @@ import {
   detectTabSchema,
   getCarInfo,
   getFuelLogRows,
+  updateCarInfo,
   updateFuelRow,
 } from '../sheetsApi';
 import { getSpreadsheetMeta } from '../sheetsApi/restClient';
@@ -174,6 +175,22 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
     [refresh, sheet, withFreshToken],
   );
 
+  const updateCar = useCallback(
+    async (fields: Omit<Car, 'id'>) => {
+      const tab = currentTabRef.current;
+      if (!sheet || !tab) throw new Error('לא נמצאה לשונית פעילה לעדכון הרכב.');
+      try {
+        const token = await withFreshToken();
+        await updateCarInfo(token, sheet.id, tab.sheetTitle, toCarInfoFields(fields));
+        await refresh();
+      } catch (updateError) {
+        setError(updateError instanceof Error ? updateError.message : 'שגיאה בעדכון פרטי הרכב.');
+        throw updateError;
+      }
+    },
+    [refresh, sheet, withFreshToken],
+  );
+
   const deleteFuelEntry = useCallback(
     async (row: number) => {
       const tab = currentTabRef.current;
@@ -199,6 +216,7 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
     fuelEntries,
     refresh,
     status,
+    updateCar,
     updateFuelEntry,
   };
 

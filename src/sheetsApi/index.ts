@@ -1,5 +1,5 @@
 ﻿export { bootstrapCarTab } from './bootstrapTab';
-export { getCarInfo } from './carInfo';
+export { getCarInfo, updateCarInfo } from './carInfo';
 export { detectTabSchema, type TabSchemaStatus } from './detectSchema';
 export { SchemaError, SchemaErrorReason, SheetsApiError } from './errors';
 export {
