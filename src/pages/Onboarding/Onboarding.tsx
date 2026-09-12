@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthStatus, useAuth } from '../../auth';
 import { Button, Card, TextInput } from '../../components';
 import { useSheet } from '../../sheet';
+import { ROUTES } from '../../app/routes';
 import {
   onboardingActions,
   onboardingBody,
@@ -31,7 +32,7 @@ export const OnboardingPage = () => {
   // automatically — nothing else was navigating away from this screen
   // otherwise.
   useEffect(() => {
-    if (isFullyConnected) navigate('/', { replace: true });
+    if (isFullyConnected) navigate(ROUTES.home.path, { replace: true });
   }, [isFullyConnected, navigate]);
 
   // Avoid flashing the "pick/create a sheet" card for a frame while the

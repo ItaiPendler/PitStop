@@ -27,15 +27,15 @@ const RequireSheet = () => {
 export const AppRouter = () => (
   <HashRouter>
     <Routes>
-      <Route path="/onboarding" element={<OnboardingPage />} />
+      <Route element={<OnboardingPage />} path={ROUTES.onboarding.path} />
       <Route element={<AppShell />}>
         <Route element={<RequireSheet />}>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/add" element={<AddEditFuelingPage />} />
-          <Route path="/stats" element={<StatisticsPage />} />
+          <Route element={<DashboardPage />} path={ROUTES.home.path} />
+          <Route element={<AddEditFuelingPage />} path={ROUTES.add.path} />
+          <Route element={<StatisticsPage />} path={ROUTES.stats.path} />
         </Route>
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/about" element={<AboutPage />} />
+        <Route element={<SettingsPage />} path={ROUTES.settings.path} />
+        <Route element={<AboutPage />} path={ROUTES.about.path} />
       </Route>
     </Routes>
   </HashRouter>

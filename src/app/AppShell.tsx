@@ -1,9 +1,8 @@
-import type { ReactNode } from 'react';
-import { Home, Info, LineChart, Settings } from 'lucide-react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BottomNav, Button, Chip, TopBar } from '../components';
 import type { NavItem } from '../components';
 import { AuthStatus, useAuth } from '../auth';
+import { NAV_ROUTES, ROUTES } from './routes';
 
 const AuthControl = () => {
   const { signIn, signOut, status } = useAuth();
@@ -26,55 +25,42 @@ const AuthControl = () => {
   );
 };
 
-const PAGE_TITLES: Record<string, ReactNode> = {
-  '/': '🏁 PitStop',
-  '/about': 'אודות',
-  '/add': 'הוספת תדלוק',
-  '/settings': 'הגדרות',
-  '/stats': 'סטטיסטיקה',
-};
-
 export const AppShell = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isFullScreenPage = location.pathname === '/add';
+  const isFullScreenPage = location.pathname === ROUTES.add.path;
+  const currentTitle = Object.values(ROUTES).find(
+    (route) => route.path === location.pathname,
+  )?.title;
 
-  const leftItems: NavItem[] = [
-    {
-      active: location.pathname === '/',
-      icon: <Home />,
-      key: 'home',
-      label: 'בית',
-      onClick: () => navigate('/'),
+  const leftItems: NavItem[] = NAV_ROUTES.filter((route) => route.nav?.side === 'left').map(
+    (route) => {
+      const { icon: Icon, label } = route.nav!;
+      return {
+        active: location.pathname === route.path,
+        icon: <Icon />,
+        key: route.id,
+        label,
+        onClick: () => navigate(route.path),
+      };
     },
-    {
-      active: location.pathname === '/stats',
-      icon: <LineChart />,
-      key: 'stats',
-      label: 'סטטיסטיקה',
-      onClick: () => navigate('/stats'),
+  );
+  const rightItems: NavItem[] = NAV_ROUTES.filter((route) => route.nav?.side === 'right').map(
+    (route) => {
+      const { icon: Icon, label } = route.nav!;
+      return {
+        active: location.pathname === route.path,
+        icon: <Icon />,
+        key: route.id,
+        label,
+        onClick: () => navigate(route.path),
+      };
     },
-  ];
-  const rightItems: NavItem[] = [
-    {
-      active: location.pathname === '/about',
-      icon: <Info />,
-      key: 'about',
-      label: 'אודות',
-      onClick: () => navigate('/about'),
-    },
-    {
-      active: location.pathname === '/settings',
-      icon: <Settings />,
-      key: 'settings',
-      label: 'הגדרות',
-      onClick: () => navigate('/settings'),
-    },
-  ];
+  );
 
   return (
     <div className="mx-auto min-h-svh max-w-[480px]">
-      <TopBar end={<AuthControl />} title={PAGE_TITLES[location.pathname] ?? '🏁 PitStop'} />
+      <TopBar end={<AuthControl />} title={currentTitle ?? '🏁 PitStop'} />
 
       <main className={isFullScreenPage ? 'p-4' : 'p-4 pb-20'}>
         <Outlet />
@@ -84,7 +70,7 @@ export const AppShell = () => {
         <BottomNav
           leftItems={leftItems}
           rightItems={rightItems}
-          onFabClick={() => navigate('/add')}
+          onFabClick={() => navigate(ROUTES.add.path)}
         />
       )}
     </div>
