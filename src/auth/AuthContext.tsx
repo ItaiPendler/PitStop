@@ -62,23 +62,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Try a silent (no popup) sign-in once on load, in case the browser still
   // has an active Google session — spares the user a click on every visit.
-  useEffect(() => {
-    let cancelled = false;
-    requestAccessToken({ prompt: '' })
-      .then((response) => {
-        if (cancelled) return;
-        setAccessToken(response.access_token);
-        setStatus('signed-in');
-        scheduleRefreshRef.current(response.expires_in);
-      })
-      .catch(() => {
-        // No existing session — stay signed out until the user taps "sign in".
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+  // NOTE: we intentionally do NOT attempt a silent requestAccessToken({
+  // prompt: '' }) on load to "restore" the session. Modern browsers'
+  // third-party-cookie restrictions mean GIS can't do this invisibly — it
+  // briefly flashes an account-chooser popup that then fails anyway (no
+  // token was ever granted without explicit consent), which is confusing
+  // and provides no real benefit. Per spec.md §4, the access token is
+  // memory-only by design, so every page reload requires an explicit
+  // "sign in" tap — that's expected, not a bug.
   useEffect(() => () => window.clearTimeout(refreshTimer.current), []);
 
   return (
