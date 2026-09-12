@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PitStop — הוספת תדלוק</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app" style="padding-bottom: var(--space-md);">
+
+  <div class="topbar">
+    <a href="index.html" class="topbar__title" style="text-decoration:none;color:inherit;">← ביטול</a>
+    <div class="topbar__title">תדלוק חדש</div>
+    <div style="width:28px;"></div>
+  </div>
+
+  <main>
+
+    <form class="form">
+
+      <!-- Date -->
+      <div class="field">
+        <label class="field__label">תאריך</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="date" value="2026-09-12">
+        </div>
+      </div>
+
+      <!-- Odometer -->
+      <div class="field">
+        <label class="field__label">קילומטראז׳</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" inputmode="decimal" placeholder="41,980" value="42410">
+          <span class="field__unit">ק״מ</span>
+        </div>
+        <span class="field__hint">קילומטראז׳ קודם: <span class="ltr-num">41,980</span> ק״מ</span>
+      </div>
+
+      <!-- Liters -->
+      <div class="field">
+        <label class="field__label">כמות דלק</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" inputmode="decimal" placeholder="0.0" value="29.4">
+          <span class="field__unit">ליטר</span>
+        </div>
+      </div>
+
+      <!-- Linked price pair -->
+      <div class="field">
+        <label class="field__label">מחיר</label>
+        <div class="field-pair">
+          <div class="field__input-wrap">
+            <input class="field__input" type="number" inputmode="decimal" placeholder="0.00" value="166.11">
+            <span class="field__unit">₪ סה״כ</span>
+          </div>
+          <div class="field__input-wrap">
+            <input class="field__input" type="number" inputmode="decimal" placeholder="0.00" value="5.65">
+            <span class="field__unit">₪/ל</span>
+          </div>
+          <div class="field-pair__link">
+            <span class="field-pair__link-icon">⇄</span>
+            <span>עדכון שדה אחד מחשב את השני אוטומטית</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fuel grade segmented (optional, nice touch) -->
+      <div class="field">
+        <label class="field__label">סוג דלק</label>
+        <div class="segmented">
+          <div class="segmented__option">95</div>
+          <div class="segmented__option is-active">98</div>
+          <div class="segmented__option">דיזל</div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="field">
+        <label class="field__label">הערות (אופציונלי)</label>
+        <div class="field__input-wrap">
+          <input class="field__input field__input--text" type="text" placeholder="לדוגמה: תחנת דלק בכניסה לעיר">
+        </div>
+      </div>
+
+      <!-- Live efficiency preview -->
+      <section class="card" style="background: var(--surface-container-high); display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <div class="text-sm muted">צריכה משוערת לתדלוק זה</div>
+          <div class="hero-card__value ltr-num" style="font-size:28px; line-height:1.2;">14.6 <span class="hero-card__unit" style="font-size:13px;">ק״מ/ל</span></div>
+        </div>
+        <span class="chip chip--optimal"><span class="chip__dot"></span> תקין</span>
+      </section>
+
+    </form>
+
+  </main>
+
+  <div class="sticky-footer" style="padding: 0 var(--gutter) var(--space-md);">
+    <button class="btn btn--primary btn--full">שמירת תדלוק</button>
+  </div>
+
+</div>
+</body>
+</html>
