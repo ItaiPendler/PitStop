@@ -6,14 +6,17 @@ import { DashboardPage } from '../pages/Dashboard';
 import { OnboardingPage } from '../pages/Onboarding';
 import { SettingsPage } from '../pages/Settings';
 import { StatisticsPage } from '../pages/Statistics';
+import { useAuth } from '../auth';
 import { useSheet } from '../sheet';
 
-// Gates the data-driven pages behind "a sheet is connected" — everything
-// else (About, Settings, Onboarding) stays reachable regardless, per
-// spec.md §8 screen 1.
+// Gates the data-driven pages behind "signed in AND a sheet is connected" —
+// per spec.md §9/§15, no data is ever shown without a live session, so a
+// stored sheet id alone isn't enough. About/Settings/Onboarding stay
+// reachable regardless (spec.md §8 screen 1).
 const RequireSheet = () => {
+  const { status } = useAuth();
   const { sheet } = useSheet();
-  return sheet ? <Outlet /> : <Navigate replace to="/onboarding" />;
+  return status === 'signed-in' && sheet ? <Outlet /> : <Navigate replace to="/onboarding" />;
 };
 
 export const AppRouter = () => (

@@ -12,7 +12,9 @@ export const onboardingHeroCard = cva('flex flex-col gap-4');
 
 export const onboardingLead = cva('text-sm leading-6 text-on-surface');
 
-export const onboardingPage = cva('flex min-h-[70svh] flex-col justify-center gap-6');
+export const onboardingPage = cva(
+  'mx-auto flex min-h-svh w-full max-w-[480px] flex-col justify-center gap-6 p-4',
+);
 
 export const onboardingSectionCard = cva('flex flex-col gap-4');
 

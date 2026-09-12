@@ -322,8 +322,12 @@ average efficiency = (odometer_last − odometer_first) / Σ(liters, excluding f
 
 ## 9. Offline / PWA
 
-- Installable (add-to-home-screen), app-shell cached via Workbox.
-- **Offline read:** last-loaded car & fuel data is cached and viewable offline.
+- Installable (add-to-home-screen), app-shell cached via Workbox (shell assets only —
+  UI chrome, not data).
+- **No offline data viewing.** All car/fuel data is fetched live from the Sheet after
+  signing in; nothing is cached or shown without an active, signed-in session. If
+  there's no connectivity or no valid session, the app shows a clear "sign in" /
+  "you're offline" state instead of stale data.
 - **Writes require connectivity** in v1 (clear "you're offline" message). An offline
   write queue is a v2 improvement.
 
@@ -415,10 +419,13 @@ supersedes `design-brief.md`'s brief-only guidance now that the design is in-hou
 4. **Tab naming:** each car tab is named by its **nickname**.
 5. **Site:** repo/site name **PitStop** → `https://<user>.github.io/PitStop/`,
    Vite `base = /PitStop/`, OAuth origins set accordingly.
+6. **No offline data viewing:** all car/fuel data must be live and requires an
+   active signed-in session to display — no cached/last-known data shown offline
+   or while signed out (revised from an earlier offline-read draft in §9).
 
 **Assumptions (call out if wrong):**
 
-6. **One shared spreadsheet** for the whole group (not per-person sheets).
-7. **₪/L and total price both optional and auto-linked** (enter either, the other
+7. **One shared spreadsheet** for the whole group (not per-person sheets).
+8. **₪/L and total price both optional and auto-linked** (enter either, the other
    fills in; both stored).
-8. Distance in **km**, volume in **liters**, currency **₪ (ILS)**, UI **Hebrew/RTL**.
+9. Distance in **km**, volume in **liters**, currency **₪ (ILS)**, UI **Hebrew/RTL**.

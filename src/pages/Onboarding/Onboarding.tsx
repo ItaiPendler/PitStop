@@ -22,12 +22,21 @@ export const OnboardingPage = () => {
   const navigate = useNavigate();
 
   const isSignedIn = status === 'signed-in';
+  // A sheet id can be stored (localStorage) even when signed out — per
+  // spec.md §15, that alone must never be enough to view data, so we still
+  // require a live sign-in before treating onboarding as "done".
+  const isFullyConnected = isSignedIn && Boolean(sheet);
 
-  // Once a sheet is picked or created, leave onboarding automatically —
-  // nothing else was navigating away from this screen otherwise.
+  // Once both a live session and a sheet exist, leave onboarding
+  // automatically — nothing else was navigating away from this screen
+  // otherwise.
   useEffect(() => {
-    if (sheet) navigate('/', { replace: true });
-  }, [navigate, sheet]);
+    if (isFullyConnected) navigate('/', { replace: true });
+  }, [isFullyConnected, navigate]);
+
+  // Avoid flashing the "pick/create a sheet" card for a frame while the
+  // redirect effect above is about to fire.
+  if (isFullyConnected) return null;
 
   return (
     <div className={onboardingPage()}>
@@ -35,14 +44,18 @@ export const OnboardingPage = () => {
         <span className={onboardingEyebrow()}>ברוכים הבאים</span>
         <h1 className={onboardingTitle()}>נחבר את הגיליון שלכם</h1>
         <p className={onboardingLead()}>
-          כל הנתונים של PitStop נשמרים בגיליון Google שלכם — לא בשרת שלנו. מתחברים עם Google, ואז
-          בוחרים או יוצרים את הגיליון שישמש למעקב.
+          כל הנתונים של PitStop נשמרים בגיליון Google שלכם — לא בשרת שלנו. הנתונים תמיד נטענים בזמן
+          אמת, ולכן צריך להתחבר מחדש בכל כניסה.
         </p>
       </Card>
 
       {!isSignedIn ? (
         <Card className={onboardingSectionCard()}>
-          <p className={onboardingBody()}>שלב 1 — מתחברים עם חשבון Google.</p>
+          <p className={onboardingBody()}>
+            {sheet
+              ? 'הגיליון שלכם מחובר — מתחברים מחדש עם Google כדי להמשיך.'
+              : 'שלב 1 — מתחברים עם חשבון Google.'}
+          </p>
           <Button
             disabled={status === 'signing-in'}
             fullWidth
