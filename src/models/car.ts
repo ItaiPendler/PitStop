@@ -19,7 +19,6 @@ export interface Car {
   tankCapacityL?: number;
 }
 
-/** Converts a domain `Car` into the raw shape `bootstrapCarTab` writes. */
 export const toCarInfoFields = (car: Omit<Car, 'id'>): CarInfoFields => ({
   initialOdometerKm: car.initialOdometerKm,
   licensePlate: car.licensePlate,
@@ -30,7 +29,6 @@ export const toCarInfoFields = (car: Omit<Car, 'id'>): CarInfoFields => ({
   year: car.year,
 });
 
-/** Converts the raw CarInfo block (from `getCarInfo`) into a domain `Car`. */
 export const fromCarInfoFields = (fields: CarInfoFields, sheetTitle: string): Car => ({
   id: sheetTitle,
   initialOdometerKm: fields.initialOdometerKm,

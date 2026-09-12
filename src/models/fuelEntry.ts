@@ -19,7 +19,6 @@ export interface FuelEntry {
   totalPrice?: number;
 }
 
-/** Converts a domain `FuelEntry` (minus the sheet-computed/row fields) into the raw write shape. */
 export const toFuelEntryValues = (
   entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'pricePerLiter' | 'row'>,
 ): FuelEntryValues => ({
@@ -30,7 +29,6 @@ export const toFuelEntryValues = (
   totalPrice: entry.totalPrice,
 });
 
-/** Converts a raw fuel-log row (from `getFuelLogRows`) into a domain `FuelEntry`. */
 export const fromFuelLogRow = ({ row, values }: FuelLogRow): FuelEntry => ({
   date: parseSheetDate(values.date),
   efficiencyKmPerLiter: values.efficiencyKmPerLiter,
