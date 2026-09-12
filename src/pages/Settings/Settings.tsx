@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type ReactNode } from 'react';
-import { useAuth } from '../../auth';
+import { AuthStatus, useAuth } from '../../auth';
 import { Button, Card, Chip, TextInput } from '../../components';
 import {
   settingsCarCard,
@@ -122,7 +122,7 @@ export const SettingsPage = () => {
   const [formState, setFormState] = useState<CarFormState>({ ...MOCK_CARS[0].form });
   const [isSaved, setIsSaved] = useState(false);
 
-  const isSignedIn = status === 'signed-in';
+  const isSignedIn = status === AuthStatus.SignedIn;
 
   const handleFieldChange =
     (field: keyof CarFormState) => (event: ChangeEvent<HTMLInputElement>) => {

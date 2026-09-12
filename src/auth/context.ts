@@ -1,6 +1,11 @@
 import { createContext } from 'react';
 
-export type AuthStatus = 'error' | 'signed-in' | 'signed-out' | 'signing-in';
+export enum AuthStatus {
+  Error = 'error',
+  SignedIn = 'signed-in',
+  SignedOut = 'signed-out',
+  SigningIn = 'signing-in',
+}
 
 export interface AuthState {
   accessToken: string | undefined;

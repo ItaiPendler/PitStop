@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AuthContext, type AuthStatus } from './context';
+import { AuthContext, AuthStatus } from './context';
 import { requestAccessToken, revokeAccessToken } from './googleTokenClient';
 
 // Refresh the token this many ms before it actually expires, so a write
@@ -8,7 +8,7 @@ import { requestAccessToken, revokeAccessToken } from './googleTokenClient';
 const REFRESH_MARGIN_MS = 60_000;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [status, setStatus] = useState<AuthStatus>('signed-out');
+  const [status, setStatus] = useState(AuthStatus.SignedOut);
   const [accessToken, setAccessToken] = useState<string>();
   const [error, setError] = useState<string>();
   const refreshTimer = useRef<number | undefined>(undefined);
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .catch(() => {
             // Silent refresh failed (e.g. session revoked elsewhere) — fall
             // back to requiring an explicit sign-in again.
-            setStatus('signed-out');
+            setStatus(AuthStatus.SignedOut);
             setAccessToken(undefined);
           });
       }, delay);
@@ -38,16 +38,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signIn = useCallback(async () => {
-    setStatus('signing-in');
+    setStatus(AuthStatus.SigningIn);
     setError(undefined);
     try {
       const response = await requestAccessToken({ prompt: 'consent' });
       setAccessToken(response.access_token);
-      setStatus('signed-in');
+      setStatus(AuthStatus.SignedIn);
       scheduleRefreshRef.current(response.expires_in);
       return response.access_token;
     } catch (signInError) {
-      setStatus('error');
+      setStatus(AuthStatus.Error);
       setError(signInError instanceof Error ? signInError.message : 'שגיאה בהתחברות ל-Google.');
       return undefined;
     }
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.clearTimeout(refreshTimer.current);
     if (accessToken) await revokeAccessToken(accessToken);
     setAccessToken(undefined);
-    setStatus('signed-out');
+    setStatus(AuthStatus.SignedOut);
   }, [accessToken]);
 
   // Try a silent (no popup) sign-in once on load, in case the browser still

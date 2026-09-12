@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthStatus, useAuth } from '../../auth';
 import { Button, Card, TextInput } from '../../components';
-import { useAuth } from '../../auth';
 import { useSheet } from '../../sheet';
 import {
   onboardingActions,
@@ -21,7 +21,7 @@ export const OnboardingPage = () => {
   const [newSheetTitle, setNewSheetTitle] = useState('הרכב שלי');
   const navigate = useNavigate();
 
-  const isSignedIn = status === 'signed-in';
+  const isSignedIn = status === AuthStatus.SignedIn;
   // A sheet id can be stored (localStorage) even when signed out — per
   // spec.md §15, that alone must never be enough to view data, so we still
   // require a live sign-in before treating onboarding as "done".
@@ -57,12 +57,12 @@ export const OnboardingPage = () => {
               : 'שלב 1 — מתחברים עם חשבון Google.'}
           </p>
           <Button
-            disabled={status === 'signing-in'}
+            disabled={status === AuthStatus.SigningIn}
             fullWidth
             onClick={() => void signIn()}
             variant="primary"
           >
-            {status === 'signing-in' ? 'מתחבר…' : 'התחברות עם Google'}
+            {status === AuthStatus.SigningIn ? 'מתחבר…' : 'התחברות עם Google'}
           </Button>
         </Card>
       ) : (
