@@ -22,20 +22,12 @@ export const OnboardingPage = () => {
 
   const isSignedIn = status === AuthStatus.SignedIn;
   const isReconnectFlow = !isSignedIn && Boolean(sheet) && Boolean(authError);
-  // A sheet id can be stored (localStorage) even when signed out — per
-  // spec.md §15, that alone must never be enough to view data, so we still
-  // require a live sign-in before treating onboarding as "done".
   const isFullyConnected = isSignedIn && Boolean(sheet);
 
-  // Once both a live session and a sheet exist, leave onboarding
-  // automatically — nothing else was navigating away from this screen
-  // otherwise.
   useEffect(() => {
     if (isFullyConnected) navigate(ROUTES.home.path, { replace: true });
   }, [isFullyConnected, navigate]);
 
-  // Avoid flashing the "pick/create a sheet" card for a frame while the
-  // redirect effect above is about to fire.
   if (isFullyConnected) return null;
 
   return (

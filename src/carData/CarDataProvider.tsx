@@ -33,12 +33,7 @@ interface CurrentTab {
   sheetTitle: string;
 }
 
-/**
- * Resolves "which tab is the current car" — spec.md notes cars are separate
- * tabs in the same spreadsheet, but there's no multi-car switching UI yet.
- * For now we always use the spreadsheet's first tab (by sheet order); real
- * tab selection is future work once a "switch cars" UI exists.
- */
+// Until multi-car UI exists, the first sheet is the active car tab.
 const resolveCurrentTab = async (
   accessToken: string,
   spreadsheetId: string,
@@ -56,14 +51,10 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
   const [car, setCar] = useState<Car>();
   const [fuelEntries, setFuelEntries] = useState<FuelEntry[]>([]);
   const [error, setError] = useState<string>();
-  // The tab currently backing `car`/`fuelEntries`, so mutations know which
-  // sheetId/title to target without re-resolving it on every call.
   const currentTabRef = useRef<CurrentTab | undefined>(undefined);
 
   const withFreshToken = useCallback(async (): Promise<string> => {
     if (accessToken) return accessToken;
-    // Per spec.md §9/§15, PitStop never keeps an offline view — every data
-    // operation needs a live token, so prompt sign-in inline if it's gone.
     const token = await signIn();
     if (!token) throw new Error('יש להתחבר עם Google כדי לטעון את נתוני הרכב.');
     return token;
@@ -114,9 +105,7 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
   }, [authStatus, sheet, withFreshToken]);
 
   useEffect(() => {
-    // Deferred via setTimeout (rather than calling `refresh()` directly) so
-    // its setState calls run outside the synchronous effect flush — see
-    // eslint-plugin-react-hooks' `set-state-in-effect` rule.
+    // setTimeout keeps refresh state updates out of the effect flush.
     const timeoutId = window.setTimeout(() => void refresh(), 0);
     return () => window.clearTimeout(timeoutId);
   }, [refresh]);

@@ -3,8 +3,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AuthContext, AuthStatus } from './context';
 import { requestAccessToken, revokeAccessToken } from './googleTokenClient';
 
-// Refresh the token this many ms before it actually expires, so a write
-// request never starts with a token that's about to die mid-flight.
 const REFRESH_MARGIN_MS = 60_000;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -12,9 +10,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string>();
   const [error, setError] = useState<string>();
   const refreshTimer = useRef<number | undefined>(undefined);
-  // Holds the "schedule next silent refresh" function. A ref (rather than a
-  // plain recursive const) sidesteps the temporal-dead-zone self-reference
-  // that a directly-recursive useCallback would create.
+  // A ref avoids the TDZ self-reference a recursive useCallback would create.
   const scheduleRefreshRef = useRef<(expiresInSeconds: number) => void>(() => {});
 
   useEffect(() => {
@@ -30,8 +26,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             scheduleRefreshRef.current(response.expires_in);
           })
           .catch(() => {
-            // Silent refresh failed (e.g. session revoked elsewhere) — fall
-            // back to requiring an explicit sign-in again.
             setError('החיבור ל-Google הסתיים. כדי להמשיך צריך להתחבר מחדש.');
             setStatus(AuthStatus.SignedOut);
             setAccessToken(undefined);
@@ -64,16 +58,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setStatus(AuthStatus.SignedOut);
   }, [accessToken]);
 
-  // Try a silent (no popup) sign-in once on load, in case the browser still
-  // has an active Google session — spares the user a click on every visit.
-  // NOTE: we intentionally do NOT attempt a silent requestAccessToken({
-  // prompt: '' }) on load to "restore" the session. Modern browsers'
-  // third-party-cookie restrictions mean GIS can't do this invisibly — it
-  // briefly flashes an account-chooser popup that then fails anyway (no
-  // token was ever granted without explicit consent), which is confusing
-  // and provides no real benefit. Per spec.md §4, the access token is
-  // memory-only by design, so every page reload requires an explicit
-  // "sign in" tap — that's expected, not a bug.
   useEffect(() => () => window.clearTimeout(refreshTimer.current), []);
 
   return (

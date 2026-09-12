@@ -15,10 +15,6 @@ const StatisticsPage = lazy(async () => {
   return { default: module.StatisticsPage };
 });
 
-// Gates the data-driven pages behind "signed in AND a sheet is connected" —
-// per spec.md §9/§15, no data is ever shown without a live session, so a
-// stored sheet id alone isn't enough. About/Settings/Onboarding stay
-// reachable regardless (spec.md §8 screen 1).
 const RequireSheet = () => {
   const { status } = useAuth();
   const { sheet } = useSheet();

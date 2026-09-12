@@ -1,10 +1,3 @@
-/**
- * The `FuelEntry` domain type — a friendly, camelCase view of one fuel-log
- * row (spec.md §6.1/§6.2), distinct from the raw `sheetsApi.FuelEntryValues`
- * shape. `row` carries the 1-based sheet row so a future edit/delete can
- * target this exact entry via `updateFuelRow`/`deleteFuelRow` without
- * re-deriving it.
- */
 import { formatDateForSheet, parseSheetDate } from './sheetDate';
 import type { FuelEntryValues, FuelLogRow } from '../sheetsApi';
 

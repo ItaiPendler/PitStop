@@ -5,9 +5,6 @@ import { SheetContext, type ConnectedSheet } from './context';
 import { createSheet } from './createSheet';
 import { pickSheet } from './pickerClient';
 
-// PitStop stores almost nothing itself — just the chosen spreadsheet id/name,
-// in localStorage (spec.md §4 "Core architecture"). Everything else lives in
-// the Sheet.
 const STORAGE_KEY = 'pitstop:sheet';
 
 const readStoredSheet = (): ConnectedSheet | undefined => {
@@ -42,8 +39,6 @@ export const SheetProvider = ({ children }: { children: ReactNode }) => {
 
   const withFreshToken = useCallback(async (): Promise<string> => {
     if (accessToken) return accessToken;
-    // The user reached this action signed out (e.g. reload lost the
-    // in-memory token) — prompt sign-in inline rather than failing silently.
     const token = await signIn();
     if (!token) throw new Error('יש להתחבר עם Google לפני חיבור גיליון.');
     return token;

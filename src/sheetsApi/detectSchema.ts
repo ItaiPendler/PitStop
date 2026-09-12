@@ -1,8 +1,3 @@
-﻿/**
- * Detects whether a car tab is empty (safe to bootstrap), already has a
- * valid PitStop structure (safe to read), or is malformed (needs the
- * "repair structure" path) — spec.md §6.4.
- */
 import { SchemaError, SchemaErrorReason } from './errors';
 import {
   FUEL_LOG_FIRST_DATA_ROW,
@@ -37,17 +32,9 @@ const findSheetByTitle = (
 };
 
 const hasNamedRange = (namedRanges: NamedRange[], name: string, sheetId: number): boolean =>
-  // The Sheets API omits `range.sheetId` entirely when it's `0` (a proto3
-  // default-value JSON-serialization quirk), so a named range on the
-  // spreadsheet's first tab (sheetId 0 — the common case) comes back with
-  // no `sheetId` field at all. Treat a missing field as `0`, not `undefined`.
+  // The API omits sheetId when it is 0, so treat a missing value as 0.
   namedRanges.some((range) => range.name === name && (range.range.sheetId ?? 0) === sheetId);
 
-/**
- * Reads the tab's marker cell + named ranges and classifies it. Throws a
- * `SchemaError` for content that doesn't match a fresh or valid PitStop tab,
- * so callers can surface the "repair structure" error path.
- */
 export const detectTabSchema = async (
   accessToken: string,
   spreadsheetId: string,
@@ -65,8 +52,6 @@ export const detectTabSchema = async (
   const [marker, version] = markerRow[0] ?? [];
 
   if (!marker) {
-    // No schema marker — make sure the tab is actually blank before we call
-    // it "empty", so we never silently overwrite hand-entered data.
     const sample = await valuesGet(
       accessToken,
       spreadsheetId,
