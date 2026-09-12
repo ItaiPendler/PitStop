@@ -25,11 +25,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         requestAccessToken({ prompt: '' })
           .then((response) => {
             setAccessToken(response.access_token);
+            setError(undefined);
+            setStatus(AuthStatus.SignedIn);
             scheduleRefreshRef.current(response.expires_in);
           })
           .catch(() => {
             // Silent refresh failed (e.g. session revoked elsewhere) — fall
             // back to requiring an explicit sign-in again.
+            setError('החיבור ל-Google הסתיים. כדי להמשיך צריך להתחבר מחדש.');
             setStatus(AuthStatus.SignedOut);
             setAccessToken(undefined);
           });
@@ -57,6 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.clearTimeout(refreshTimer.current);
     if (accessToken) await revokeAccessToken(accessToken);
     setAccessToken(undefined);
+    setError(undefined);
     setStatus(AuthStatus.SignedOut);
   }, [accessToken]);
 

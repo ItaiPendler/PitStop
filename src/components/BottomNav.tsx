@@ -1,4 +1,5 @@
 import { cloneElement, isValidElement, type ReactNode } from 'react';
+import { Plus } from 'lucide-react';
 import { cn } from '../lib/cn';
 
 export interface NavItem {
@@ -35,10 +36,7 @@ export const BottomNav = ({
         aria-label={fabLabel}
         className="absolute top-[-22px] left-1/2 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full border-4 border-surface-container-low bg-primary shadow-glow-amber"
       >
-        <span className="relative block h-4 w-4">
-          <span className="absolute start-1/2 top-0 h-full w-0.5 -translate-x-1/2 rounded-full bg-on-primary" />
-          <span className="absolute start-0 top-1/2 h-0.5 w-full -translate-y-1/2 rounded-full bg-on-primary" />
-        </span>
+        <Plus aria-hidden className="h-6 w-6 text-on-primary" strokeWidth={2.5} />
       </button>
     </div>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthStatus, useAuth } from '../../auth';
-import { Button, Card, TextInput } from '../../components';
+import { Button, Card, Chip, TextInput } from '../../components';
 import { useSheet } from '../../sheet';
 import { ROUTES } from '../../app/routes';
 import {
@@ -23,6 +23,7 @@ export const OnboardingPage = () => {
   const navigate = useNavigate();
 
   const isSignedIn = status === AuthStatus.SignedIn;
+  const isReconnectFlow = !isSignedIn && Boolean(sheet) && Boolean(authError);
   // A sheet id can be stored (localStorage) even when signed out — per
   // spec.md §15, that alone must never be enough to view data, so we still
   // require a live sign-in before treating onboarding as "done".
@@ -45,17 +46,27 @@ export const OnboardingPage = () => {
         <span className={onboardingEyebrow()}>ברוכים הבאים</span>
         <h1 className={onboardingTitle()}>נחבר את הגיליון שלכם</h1>
         <p className={onboardingLead()}>
-          כל הנתונים של PitStop נשמרים בגיליון Google שלכם — לא בשרת שלנו. הנתונים תמיד נטענים בזמן
-          אמת, ולכן צריך להתחבר מחדש בכל כניסה.
+          כל הנתונים של PitStop נשמרים ונערכים ישירות בגיליון Google שלכם — לא בשרת שלנו. לכן צריך
+          חיבור פעיל ל-Google כדי לטעון נתונים, לבחור גיליון ולשמור תדלוקים בזמן אמת.
         </p>
       </Card>
 
       {!isSignedIn ? (
         <Card className={onboardingSectionCard()}>
+          {isReconnectFlow ? (
+            <div className="flex flex-col gap-3 rounded-lg border border-tertiary/30 bg-tertiary/10 p-4">
+              <Chip className="w-fit" status="caution">
+                נדרש חיבור מחדש
+              </Chip>
+              <p className={onboardingBody()}>
+                פג תוקף החיבור הקודם ל-Google, ולכן עצרנו את הגישה לנתוני הגיליון עד לחיבור מחדש.
+              </p>
+            </div>
+          ) : null}
           <p className={onboardingBody()}>
             {sheet
-              ? 'הגיליון שלכם מחובר — מתחברים מחדש עם Google כדי להמשיך.'
-              : 'שלב 1 — מתחברים עם חשבון Google.'}
+              ? 'הגיליון שלכם כבר נבחר. עכשיו מתחברים מחדש ל-Google כדי להמשיך לעבוד מולו.'
+              : 'שלב 1 — מתחברים עם חשבון Google כדי לאפשר ל-PitStop לפתוח ולעדכן את הגיליון שלכם.'}
           </p>
           <Button
             disabled={status === AuthStatus.SigningIn}
@@ -63,7 +74,11 @@ export const OnboardingPage = () => {
             onClick={() => void signIn()}
             variant="primary"
           >
-            {status === AuthStatus.SigningIn ? 'מתחבר…' : 'התחברות עם Google'}
+            {status === AuthStatus.SigningIn
+              ? 'מתחבר…'
+              : isReconnectFlow
+                ? 'חיבור מחדש ל-Google'
+                : 'התחברות עם Google'}
           </Button>
 
           {authError && <p className={onboardingErrorText()}>{authError}</p>}
