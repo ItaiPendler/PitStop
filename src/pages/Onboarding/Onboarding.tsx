@@ -17,7 +17,7 @@ import {
 } from './onboardingStyles';
 
 export const OnboardingPage = () => {
-  const { signIn, status } = useAuth();
+  const { error: authError, signIn, status } = useAuth();
   const { connectExisting, createNew, error, isBusy, sheet } = useSheet();
   const [newSheetTitle, setNewSheetTitle] = useState('הרכב שלי');
   const navigate = useNavigate();
@@ -65,6 +65,8 @@ export const OnboardingPage = () => {
           >
             {status === AuthStatus.SigningIn ? 'מתחבר…' : 'התחברות עם Google'}
           </Button>
+
+          {authError && <p className={onboardingErrorText()}>{authError}</p>}
         </Card>
       ) : (
         <Card className={onboardingSectionCard()}>
