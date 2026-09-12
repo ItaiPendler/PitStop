@@ -1,35 +1,22 @@
 import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
+import { cva } from 'class-variance-authority';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../app/routes';
 import { AuthStatus, useAuth } from '../../auth';
-import { Button, Card, Chip, TextInput } from '../../components';
+import {
+  Button,
+  Card,
+  Chip,
+  Eyebrow,
+  FieldLabel,
+  FieldValue,
+  SectionBody,
+  SectionTitle,
+  TextInput,
+} from '../../components';
 import { useCarData } from '../../carData';
 import type { Car } from '../../models';
 import { useSheet } from '../../sheet';
-import {
-  settingsCarCard,
-  settingsCarDetails,
-  settingsCarLabel,
-  settingsCarList,
-  settingsCarRow,
-  settingsErrorText,
-  settingsFieldGrid,
-  settingsInlineHint,
-  settingsInlineSuccess,
-  settingsLink,
-  settingsLocaleValue,
-  settingsMetaGrid,
-  settingsPage,
-  settingsReadonlyCard,
-  settingsReadonlyLabel,
-  settingsReadonlyValue,
-  settingsSectionBody,
-  settingsSectionCard,
-  settingsSectionEyebrow,
-  settingsSectionHeader,
-  settingsSectionTitle,
-  settingsStatusRow,
-} from './settingsStyles';
 
 interface CarFormState {
   initialOdometer: string;
@@ -57,6 +44,21 @@ const EMPTY_FORM: CarFormState = {
   tankCapacity: '',
   year: '',
 };
+
+const settingsCarRow = cva(
+  'w-full rounded-lg border bg-surface-container-low p-4 text-right transition-colors focus:outline-none focus-visible:border-primary focus-visible:shadow-glow-amber',
+  {
+    defaultVariants: {
+      active: false,
+    },
+    variants: {
+      active: {
+        false: 'border-ghost hover:border-ghost-strong',
+        true: 'border-primary/70 bg-surface-container-high shadow-elevated',
+      },
+    },
+  },
+);
 
 const carToFormState = (car: Car): CarFormState => ({
   initialOdometer: car.initialOdometerKm?.toString() ?? '',
@@ -112,10 +114,10 @@ const SettingsSection = ({
   title,
   variant = 'default',
 }: SettingsSectionProps) => (
-  <Card className={settingsSectionCard()} variant={variant}>
-    <div className={settingsSectionHeader()}>
-      {eyebrow ? <span className={settingsSectionEyebrow()}>{eyebrow}</span> : null}
-      <h2 className={settingsSectionTitle()}>{title}</h2>
+  <Card className="flex flex-col gap-4" variant={variant}>
+    <div className="flex flex-col gap-2">
+      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
+      <SectionTitle>{title}</SectionTitle>
     </div>
     {children}
   </Card>
@@ -179,13 +181,15 @@ export const SettingsPage = () => {
 
   const renderCarInfoSection = () => {
     if (carStatus === 'idle' || carStatus === 'loading') {
-      return <p className={settingsSectionBody()}>טוען נתונים…</p>;
+      return <SectionBody>טוען נתונים…</SectionBody>;
     }
 
     if (carStatus === 'error') {
       return (
         <>
-          <p className={settingsErrorText()}>{carError ?? 'שגיאה בטעינת נתוני הרכב.'}</p>
+          <p className="text-sm leading-6 text-tertiary">
+            {carError ?? 'שגיאה בטעינת נתוני הרכב.'}
+          </p>
           <Button fullWidth onClick={() => void refresh()} type="button" variant="secondary">
             נסה שוב
           </Button>
@@ -196,10 +200,10 @@ export const SettingsPage = () => {
     if (carStatus === 'needs-setup') {
       return (
         <>
-          <p className={settingsSectionBody()}>
+          <SectionBody>
             עדיין לא הוגדר רכב בגיליון המחובר. יש להגדיר רכב במסך הבית לפני שאפשר לערוך כאן את
             פרטיו.
-          </p>
+          </SectionBody>
           <Button fullWidth onClick={() => navigate(ROUTES.home.path)} type="button">
             מעבר למסך הבית
           </Button>
@@ -209,7 +213,7 @@ export const SettingsPage = () => {
 
     return (
       <>
-        <div className={settingsFieldGrid()}>
+        <div className="grid gap-3 sm:grid-cols-2">
           <TextInput
             id="settings-make"
             label="יצרן"
@@ -270,33 +274,35 @@ export const SettingsPage = () => {
         >
           {saveState === 'saving' ? 'שומר…' : 'שמירת שינויים'}
         </Button>
-        {saveState === 'saved' ? <p className={settingsInlineSuccess()}>נשמר.</p> : null}
+        {saveState === 'saved' ? <p className="text-sm leading-6 text-secondary">נשמר.</p> : null}
         {saveState === 'error' ? (
-          <p className={settingsErrorText()}>{saveError ?? 'שגיאה בשמירת פרטי הרכב.'}</p>
+          <p className="text-sm leading-6 text-tertiary">
+            {saveError ?? 'שגיאה בשמירת פרטי הרכב.'}
+          </p>
         ) : null}
       </>
     );
   };
 
   return (
-    <div className={settingsPage()}>
+    <div className="flex flex-col gap-6">
       <SettingsSection eyebrow="פרטי רכב" title="עריכת פרטי הרכב" variant="hero">
         {renderCarInfoSection()}
       </SettingsSection>
 
       <SettingsSection eyebrow="טאבים בגיליון" title="מעבר בין רכבים">
-        <p className={settingsSectionBody()}>
+        <SectionBody>
           כל רכב נשמר בטאב נפרד באותו גיליון. כרגע נתמך רק רכב אחד לגיליון — מעבר בין כמה רכבים
           יתווסף בעדכון עתידי.
-        </p>
+        </SectionBody>
 
         {carStatus === 'ready' && car ? (
-          <div className={settingsCarList()}>
+          <div className="flex flex-col gap-3">
             <div className={settingsCarRow({ active: true })}>
-              <div className={settingsCarCard()}>
+              <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className={settingsCarLabel()}>{car.nickname}</p>
-                  <p className={settingsCarDetails()}>
+                  <p className="text-sm font-semibold text-on-surface">{car.nickname}</p>
+                  <p className="text-xs leading-5 text-on-surface-variant">
                     {car.make} {car.model} · {car.year}
                   </p>
                 </div>
@@ -309,23 +315,23 @@ export const SettingsPage = () => {
         <Button disabled fullWidth type="button" variant="secondary">
           הוספת רכב חדש (בקרוב)
         </Button>
-        <p className={settingsInlineHint()}>
+        <p className="text-xs leading-5 text-on-surface-variant">
           תמיכה במספר רכבים באותו גיליון עדיין לא זמינה — הכפתור יופעל בעדכון עתידי.
         </p>
       </SettingsSection>
 
       <SettingsSection eyebrow="חיבור נתונים" title="הגיליון המחובר" variant="elevated">
         {sheet ? (
-          <div className={settingsMetaGrid()}>
-            <Card className={settingsReadonlyCard()}>
-              <span className={settingsReadonlyLabel()}>שם הגיליון</span>
-              <p className={settingsReadonlyValue()}>{sheet.name}</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Card className="flex flex-col gap-2 p-4">
+              <FieldLabel>שם הגיליון</FieldLabel>
+              <FieldValue>{sheet.name}</FieldValue>
             </Card>
 
-            <Card className={settingsReadonlyCard()}>
-              <span className={settingsReadonlyLabel()}>קישור</span>
+            <Card className="flex flex-col gap-2 p-4">
+              <FieldLabel>קישור</FieldLabel>
               <a
-                className={settingsLink()}
+                className="text-sm font-medium text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary/80"
                 href={`https://docs.google.com/spreadsheets/d/${sheet.id}/edit`}
                 rel="noreferrer"
                 target="_blank"
@@ -335,25 +341,25 @@ export const SettingsPage = () => {
             </Card>
           </div>
         ) : (
-          <p className={settingsSectionBody()}>לא מחובר גיליון כרגע.</p>
+          <SectionBody>לא מחובר גיליון כרגע.</SectionBody>
         )}
 
         <Button fullWidth onClick={handleDisconnectSheet} type="button" variant="secondary">
           החלפת גיליון
         </Button>
-        <p className={settingsInlineHint()}>
+        <p className="text-xs leading-5 text-on-surface-variant">
           ניתוק הגיליון המחובר ומעבר למסך החיבור כדי לבחור או ליצור גיליון אחר.
         </p>
       </SettingsSection>
 
       <SettingsSection eyebrow="חשבון" title="חיבור ל־Google">
-        <div className={settingsStatusRow()}>
+        <div className="flex items-start justify-between gap-3 rounded-lg border border-ghost bg-black/10 p-4">
           {isSignedIn ? <Chip>מחובר</Chip> : <Chip status="caution">לא מחובר</Chip>}
-          <p className={settingsSectionBody()}>
+          <SectionBody>
             {isSignedIn
               ? 'החשבון מחובר ויכול לגשת לגיליון שבחרתם.'
               : 'כדי לנהל גיליונות צריך להתחבר מחדש דרך מסך החיבור.'}
-          </p>
+          </SectionBody>
         </div>
 
         {isSignedIn ? (
@@ -364,9 +370,9 @@ export const SettingsPage = () => {
       </SettingsSection>
 
       <SettingsSection eyebrow="לוקליזציה" title="העדפות קבועות ב־v1">
-        <Card className={settingsReadonlyCard()}>
-          <span className={settingsReadonlyLabel()}>שפה, מטבע ומרחק</span>
-          <p className={settingsLocaleValue()}>עברית · ₪ · ק״מ</p>
+        <Card className="flex flex-col gap-2 p-4">
+          <FieldLabel>שפה, מטבע ומרחק</FieldLabel>
+          <p className="font-mono text-sm text-on-surface">עברית · ₪ · ק״מ</p>
         </Card>
       </SettingsSection>
     </div>

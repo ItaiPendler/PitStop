@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthStatus, useAuth } from '../../auth';
-import { Button, Card, Chip, TextInput } from '../../components';
+import {
+  BodyText,
+  Button,
+  Card,
+  Chip,
+  Eyebrow,
+  PageTitle,
+  SectionBody,
+  TextInput,
+} from '../../components';
 import { useSheet } from '../../sheet';
 import { ROUTES } from '../../app/routes';
-import {
-  onboardingActions,
-  onboardingBody,
-  onboardingErrorText,
-  onboardingEyebrow,
-  onboardingHeroCard,
-  onboardingLead,
-  onboardingPage,
-  onboardingSectionCard,
-  onboardingTitle,
-} from './onboardingStyles';
 
 export const OnboardingPage = () => {
   const { error: authError, signIn, status } = useAuth();
@@ -41,33 +39,33 @@ export const OnboardingPage = () => {
   if (isFullyConnected) return null;
 
   return (
-    <div className={onboardingPage()}>
-      <Card className={onboardingHeroCard()} variant="hero">
-        <span className={onboardingEyebrow()}>ברוכים הבאים</span>
-        <h1 className={onboardingTitle()}>נחבר את הגיליון שלכם</h1>
-        <p className={onboardingLead()}>
+    <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col justify-center gap-6 p-4">
+      <Card className="flex flex-col gap-4" variant="hero">
+        <Eyebrow>ברוכים הבאים</Eyebrow>
+        <PageTitle>נחבר את הגיליון שלכם</PageTitle>
+        <BodyText>
           כל הנתונים של PitStop נשמרים ונערכים ישירות בגיליון Google שלכם — לא בשרת שלנו. לכן צריך
           חיבור פעיל ל-Google כדי לטעון נתונים, לבחור גיליון ולשמור תדלוקים בזמן אמת.
-        </p>
+        </BodyText>
       </Card>
 
       {!isSignedIn ? (
-        <Card className={onboardingSectionCard()}>
+        <Card className="flex flex-col gap-4">
           {isReconnectFlow ? (
             <div className="flex flex-col gap-3 rounded-lg border border-tertiary/30 bg-tertiary/10 p-4">
               <Chip className="w-fit" status="caution">
                 נדרש חיבור מחדש
               </Chip>
-              <p className={onboardingBody()}>
+              <SectionBody>
                 פג תוקף החיבור הקודם ל-Google, ולכן עצרנו את הגישה לנתוני הגיליון עד לחיבור מחדש.
-              </p>
+              </SectionBody>
             </div>
           ) : null}
-          <p className={onboardingBody()}>
+          <SectionBody>
             {sheet
               ? 'הגיליון שלכם כבר נבחר. עכשיו מתחברים מחדש ל-Google כדי להמשיך לעבוד מולו.'
               : 'שלב 1 — מתחברים עם חשבון Google כדי לאפשר ל-PitStop לפתוח ולעדכן את הגיליון שלכם.'}
-          </p>
+          </SectionBody>
           <Button
             disabled={status === AuthStatus.SigningIn}
             fullWidth
@@ -81,13 +79,13 @@ export const OnboardingPage = () => {
                 : 'התחברות עם Google'}
           </Button>
 
-          {authError && <p className={onboardingErrorText()}>{authError}</p>}
+          {authError && <p className="text-sm text-tertiary">{authError}</p>}
         </Card>
       ) : (
-        <Card className={onboardingSectionCard()}>
-          <p className={onboardingBody()}>שלב 2 — בוחרים גיליון קיים או יוצרים חדש.</p>
+        <Card className="flex flex-col gap-4">
+          <SectionBody>שלב 2 — בוחרים גיליון קיים או יוצרים חדש.</SectionBody>
 
-          <div className={onboardingActions()}>
+          <div className="flex flex-col gap-3">
             <Button disabled={isBusy} fullWidth onClick={() => void connectExisting()}>
               בחירת גיליון קיים
             </Button>
@@ -110,7 +108,7 @@ export const OnboardingPage = () => {
             </Button>
           </div>
 
-          {error && <p className={onboardingErrorText()}>{error}</p>}
+          {error && <p className="text-sm text-tertiary">{error}</p>}
         </Card>
       )}
     </div>
