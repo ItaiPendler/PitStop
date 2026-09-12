@@ -1,7 +1,31 @@
 import type { ReactNode } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BottomNav, TopBar } from '../components';
+import { BottomNav, Button, Chip, TopBar } from '../components';
 import type { NavItem } from '../components';
+import { useAuth } from '../auth';
+
+const AuthControl = () => {
+  const { signIn, signOut, status } = useAuth();
+
+  if (status === 'signed-in') {
+    return (
+      <button onClick={() => void signOut()} type="button">
+        <Chip status="optimal">מחובר</Chip>
+      </button>
+    );
+  }
+
+  return (
+    <Button
+      className="min-h-9 px-3 text-xs"
+      disabled={status === 'signing-in'}
+      onClick={() => void signIn()}
+      variant="secondary"
+    >
+      {status === 'signing-in' ? 'מתחבר…' : 'התחברות'}
+    </Button>
+  );
+};
 
 const PAGE_TITLES: Record<string, ReactNode> = {
   '/': '🏁 PitStop',
@@ -45,7 +69,7 @@ export const AppShell = () => {
 
   return (
     <div className="mx-auto min-h-svh max-w-[480px]">
-      <TopBar title={PAGE_TITLES[location.pathname] ?? '🏁 PitStop'} />
+      <TopBar end={<AuthControl />} title={PAGE_TITLES[location.pathname] ?? '🏁 PitStop'} />
 
       <main className={isFullScreenPage ? 'p-4' : 'p-4 pb-20'}>
         <Outlet />
