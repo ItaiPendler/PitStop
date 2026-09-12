@@ -21,13 +21,12 @@ export interface FuelEntry {
 
 /** Converts a domain `FuelEntry` (minus the sheet-computed/row fields) into the raw write shape. */
 export const toFuelEntryValues = (
-  entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'row'>,
+  entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'pricePerLiter' | 'row'>,
 ): FuelEntryValues => ({
   date: formatDateForSheet(entry.date),
   liters: entry.liters,
   notes: entry.notes,
   odometerKm: entry.odometerKm,
-  pricePerLiter: entry.pricePerLiter,
   totalPrice: entry.totalPrice,
 });
 

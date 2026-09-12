@@ -15,6 +15,12 @@ export const CAR_INFO_LAST_ROW = 10;
 export const FUEL_LOG_HEADER_ROW = 12;
 export const FUEL_LOG_FIRST_DATA_ROW = 13;
 
+// The bottom row bound for the column-F efficiency ARRAYFORMULA written
+// once at bootstrap (see `buildEfficiencyArrayFormula`) — gives ~987
+// fill-up rows of headroom (decades of normal use) with a simple bounded
+// formula instead of a more complex unbounded/volatile one.
+export const FUEL_LOG_LAST_ROW = 999;
+
 export const NAMED_RANGE_CAR_INFO = 'CarInfo';
 export const NAMED_RANGE_FUEL_LOG = 'FuelLog';
 
@@ -94,12 +100,44 @@ export const isoDateToSerial = (iso: string): number => {
 export const quoteSheetTitle = (title: string): string => `'${title.replace(/'/g, "''")}'`;
 
 /**
- * The col-F formula for a given 1-based data row: blank on the first data
- * row (no previous odometer to diff against), otherwise
- * `(odometer_now - odometer_prev) / liters_now` — spec.md §7.1.
+ * The single column-F ARRAYFORMULA written into cell F13 at bootstrap time
+ * (spec.md §7.1) — computes every row from `FUEL_LOG_FIRST_DATA_ROW` to
+ * `FUEL_LOG_LAST_ROW` at once, so the efficiency of ANY fill-up row (added
+ * through the app, or typed directly into the sheet by hand) is always
+ * calculated by the sheet itself, without the app writing anything to
+ * column F after the initial setup:
+ *
+ *   - row === FUEL_LOG_FIRST_DATA_ROW → blank (no previous odometer to
+ *     diff against)
+ *   - odometer/previous-odometer missing, or liters is 0 → blank
+ *   - otherwise → (odometer_now - odometer_prev) / liters_now
  */
-export const buildEfficiencyFormula = (row: number): string => {
-  if (row <= FUEL_LOG_FIRST_DATA_ROW) return '';
-  const prev = row - 1;
-  return `=IF(OR(B${row}="",B${prev}="",C${row}=0),"",(B${row}-B${prev})/C${row})`;
+export const buildEfficiencyArrayFormula = (): string => {
+  const first = FUEL_LOG_FIRST_DATA_ROW;
+  const last = FUEL_LOG_LAST_ROW;
+  const prevFirst = first - 1;
+  const prevLast = last - 1;
+  return (
+    `=ARRAYFORMULA(IF(ROW(B${first}:B${last})=${first},"",` +
+    `IF((B${first}:B${last}="")+(B${prevFirst}:B${prevLast}="")+(C${first}:C${last}=0),"",` +
+    `(B${first}:B${last}-B${prevFirst}:B${prevLast})/C${first}:C${last})))`
+  );
+};
+
+/**
+ * The column-E ARRAYFORMULA written into cell E13 at bootstrap time,
+ * mirroring `buildEfficiencyArrayFormula` — computes price-per-liter from
+ * the total price (column D) and liters (column C) the user actually
+ * types, truncated (not rounded) to 2 decimal places:
+ *
+ *   - total price missing, or liters is 0 → blank
+ *   - otherwise → TRUNC(total_price / liters, 2)
+ */
+export const buildPricePerLiterArrayFormula = (): string => {
+  const first = FUEL_LOG_FIRST_DATA_ROW;
+  const last = FUEL_LOG_LAST_ROW;
+  return (
+    `=ARRAYFORMULA(IF((D${first}:D${last}="")+(C${first}:C${last}=0),"",` +
+    `TRUNC(D${first}:D${last}/C${first}:C${last},2)))`
+  );
 };

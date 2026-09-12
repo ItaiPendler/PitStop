@@ -1,11 +1,11 @@
 ﻿/**
  * Reads and writes the fuel-log rows (data rows only, header excluded) for
- * a car tab — append/update/delete a fill-up. Column F (efficiency) is
- * always a formula the sheet computes itself (spec.md §6.2/§7.1).
+ * a car tab — append/update/delete a fill-up. Columns E (price/liter) and
+ * F (efficiency) are always ARRAYFORMULAs the sheet computes itself
+ * (spec.md §6.2/§7.1) — never written here, only at bootstrap.
  */
 import {
   FUEL_LOG_FIRST_DATA_ROW,
-  buildEfficiencyFormula,
   quoteSheetTitle,
   serialDateToIso,
   type FuelEntryValues,
@@ -29,8 +29,8 @@ const toRowValues = (entry: FuelEntryValues): (number | string)[] => [
   entry.odometerKm,
   entry.liters,
   entry.totalPrice ?? '',
-  entry.pricePerLiter ?? '',
-  '', // column F is always a formula, written separately below — any `entry.efficiencyKmPerLiter` is ignored on write
+  '', // column E is always the price/liter ARRAYFORMULA written once at bootstrap — never written here
+  '', // column F is always the efficiency ARRAYFORMULA written once at bootstrap — never written here
   entry.notes ?? '',
 ];
 
@@ -75,7 +75,12 @@ export const getFuelLogRows = async (
     .filter(({ values }) => values.date !== '');
 };
 
-/** Appends a new fill-up after the last existing row and fills in its efficiency formula. */
+/**
+ * Appends a new fill-up after the last existing row. Writes only columns
+ * A-D and G — columns E and F are never touched here, they're covered
+ * end-to-end by the two ARRAYFORMULAs written at bootstrap (schema.ts),
+ * which also cover rows typed directly into the sheet by hand.
+ */
 export const appendFuelRow = async (
   accessToken: string,
   spreadsheetId: string,
@@ -83,25 +88,25 @@ export const appendFuelRow = async (
   entry: FuelEntryValues,
 ): Promise<number> => {
   const quotedTitle = quoteSheetTitle(sheetTitle);
+  const values = toRowValues(entry);
   const appended = await valuesAppend(
     accessToken,
     spreadsheetId,
-    `${quotedTitle}!A${FUEL_LOG_FIRST_DATA_ROW.toString()}:G`,
-    [toRowValues(entry)],
+    `${quotedTitle}!A${FUEL_LOG_FIRST_DATA_ROW.toString()}:D`,
+    [values.slice(0, 4)],
   );
   const row = parseRowFromRange(appended.updates.updatedRange);
 
-  const formula = buildEfficiencyFormula(row);
-  if (formula) {
-    await valuesUpdate(accessToken, spreadsheetId, `${quotedTitle}!F${row.toString()}`, [
-      [formula],
+  if (values[6] !== '') {
+    await valuesUpdate(accessToken, spreadsheetId, `${quotedTitle}!G${row.toString()}`, [
+      [values[6]],
     ]);
   }
 
   return row;
 };
 
-/** Overwrites an existing row's data (A-E, G); the efficiency formula in F is left untouched. */
+/** Overwrites an existing row's data (A-D, G); the price/liter and efficiency formulas (E, F) are left untouched. */
 export const updateFuelRow = (
   accessToken: string,
   spreadsheetId: string,
@@ -112,12 +117,16 @@ export const updateFuelRow = (
   const quotedTitle = quoteSheetTitle(sheetTitle);
   const values = toRowValues(entry);
   return valuesBatchUpdate(accessToken, spreadsheetId, [
-    { range: `${quotedTitle}!A${row.toString()}:E${row.toString()}`, values: [values.slice(0, 5)] },
+    { range: `${quotedTitle}!A${row.toString()}:D${row.toString()}`, values: [values.slice(0, 4)] },
     { range: `${quotedTitle}!G${row.toString()}`, values: [[values[6]]] },
   ]);
 };
 
-/** Deletes a fill-up row entirely; Sheets shifts formulas in the rows below automatically. */
+/**
+ * Deletes a fill-up row entirely. Sheets shifts rows below up automatically
+ * — including the F-column ARRAYFORMULA's own row-13 blank check, so the
+ * new first data row is correctly blanked with no extra repair needed here.
+ */
 export const deleteFuelRow = (
   accessToken: string,
   spreadsheetId: string,
@@ -130,21 +139,4 @@ export const deleteFuelRow = (
         range: { dimension: 'ROWS', endIndex: row, sheetId, startIndex: row - 1 },
       },
     },
-    ...(row === FUEL_LOG_FIRST_DATA_ROW
-      ? [
-          {
-            repeatCell: {
-              cell: {},
-              fields: 'userEnteredValue',
-              range: {
-                endColumnIndex: 6,
-                endRowIndex: FUEL_LOG_FIRST_DATA_ROW,
-                sheetId,
-                startColumnIndex: 5,
-                startRowIndex: FUEL_LOG_FIRST_DATA_ROW - 1,
-              },
-            },
-          },
-        ]
-      : []),
   ]);
