@@ -23,6 +23,8 @@ export const settingsCarRow = cva(
   },
 );
 
+export const settingsErrorText = cva('text-sm leading-6 text-tertiary');
+
 export const settingsFieldGrid = cva('grid gap-3 sm:grid-cols-2');
 
 export const settingsInlineHint = cva('text-xs leading-5 text-on-surface-variant');

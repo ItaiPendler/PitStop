@@ -10,7 +10,7 @@ import {
   quoteSheetTitle,
   type CarInfoFields,
 } from './schema';
-import { valuesGet, type SheetCellValue } from './restClient';
+import { valuesGet, valuesUpdate, type SheetCellValue } from './restClient';
 
 const parseOptionalNumber = (cell: SheetCellValue | undefined): number | undefined =>
   cell === '' || cell == null ? undefined : Number(cell);
@@ -39,4 +39,28 @@ export const getCarInfo = async (
     tankCapacityL: parseOptionalNumber(valueByKey.get('tankCapacityL')),
     year: Number(valueByKey.get('year') ?? 0),
   };
+};
+
+/**
+ * Overwrites the CarInfo value cells (column B, rows 4-10) on an
+ * already-set-up tab. Unlike `bootstrapCarTab`, this never touches the
+ * marker row, labels, fuel-log header, or named ranges — those already
+ * exist on the tab, so re-writing them here would risk clobbering
+ * structure that isn't this call's job.
+ */
+export const updateCarInfo = async (
+  accessToken: string,
+  spreadsheetId: string,
+  sheetTitle: string,
+  fields: CarInfoFields,
+): Promise<void> => {
+  const quotedTitle = quoteSheetTitle(sheetTitle);
+  const values = CAR_INFO_ROW_LABELS.map(({ key }) => [fields[key] ?? '']);
+
+  await valuesUpdate(
+    accessToken,
+    spreadsheetId,
+    `${quotedTitle}!B${CAR_INFO_FIRST_ROW.toString()}:B${CAR_INFO_LAST_ROW.toString()}`,
+    values,
+  );
 };
