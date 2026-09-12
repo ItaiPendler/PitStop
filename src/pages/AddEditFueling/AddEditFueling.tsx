@@ -92,7 +92,7 @@ const MissingEntryState = () => {
   return (
     <Card className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <h1 className="text-lg font-semibold text-on-surface">התדלוק לא נמצא</h1>
+        <h1 className="text-base font-semibold text-on-surface">התדלוק לא נמצא</h1>
         <p className="text-sm text-on-surface-variant">
           ייתכן שהקישור ישן, או שהתדלוק כבר נמחק מהגיליון.
         </p>
@@ -110,7 +110,7 @@ const ReadinessFallback = ({ description, title }: { description: string; title:
   return (
     <Card className="flex flex-col gap-4" variant="hero">
       <div className="flex flex-col gap-2">
-        <h1 className="text-lg font-semibold text-on-surface">{title}</h1>
+        <h1 className="text-base font-semibold text-on-surface">{title}</h1>
         <p className="text-sm text-on-surface-variant">{description}</p>
       </div>
       <Button fullWidth onClick={() => navigate(ROUTES.home.path)} type="button">
@@ -308,7 +308,7 @@ const FuelingForm = (props: FuelingFormProps) => {
   return (
     <Card className="flex flex-col gap-5" variant="hero">
       <div className="flex flex-col gap-1">
-        <h1 className="text-lg font-semibold text-on-surface">
+        <h1 className="text-base font-semibold text-on-surface">
           {isEditMode ? 'עריכת תדלוק' : 'הוספת תדלוק'}
         </h1>
         <p className="text-sm text-on-surface-variant">
