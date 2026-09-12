@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
 export interface TopBarProps {
-  title: ReactNode
-  center?: ReactNode
-  end?: ReactNode
+  title: ReactNode;
+  center?: ReactNode;
+  end?: ReactNode;
 }
 
 export const TopBar = ({ center, end, title }: TopBarProps) => (
@@ -12,4 +12,4 @@ export const TopBar = ({ center, end, title }: TopBarProps) => (
     {center}
     {end}
   </div>
-)
+);

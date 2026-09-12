@@ -1,4 +1,4 @@
-import { Button, Card, TextInput } from '../../components'
+import { Button, Card, TextInput } from '../../components';
 
 export const SettingsPage = () => (
   <div className="flex flex-col gap-6">
@@ -16,4 +16,4 @@ export const SettingsPage = () => (
       התנתקות
     </Button>
   </div>
-)
+);

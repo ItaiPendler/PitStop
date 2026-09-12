@@ -1,13 +1,13 @@
-import type { InputHTMLAttributes } from 'react'
-import { cn } from '../lib/cn'
+import type { InputHTMLAttributes } from 'react';
+import { cn } from '../lib/cn';
 
 export interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string
-  hint?: string
+  label: string;
+  hint?: string;
   /** Numeric fields render mono/LTR (odometer, liters, price); text fields render RTL. */
-  numeric?: boolean
-  unit?: string
-  warning?: boolean
+  numeric?: boolean;
+  unit?: string;
+  warning?: boolean;
 }
 
 export const TextInput = ({
@@ -40,7 +40,9 @@ export const TextInput = ({
       )}
     </span>
     {hint && (
-      <span className={cn('text-xs', warning ? 'text-tertiary' : 'text-on-surface-variant')}>{hint}</span>
+      <span className={cn('text-xs', warning ? 'text-tertiary' : 'text-on-surface-variant')}>
+        {hint}
+      </span>
     )}
   </label>
-)
+);

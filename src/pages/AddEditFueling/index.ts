@@ -1,1 +1,1 @@
-export { AddEditFuelingPage } from './AddEditFueling'
+export { AddEditFuelingPage } from './AddEditFueling';

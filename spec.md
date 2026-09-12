@@ -31,6 +31,7 @@ easy to lose, and impossible to share.
 ## 2. Goals & non-goals
 
 ### v1 goals
+
 - Fuel/refueling tracking, end to end (add, view, edit history).
 - Automatic efficiency (km/L) and cost stats, including charts.
 - Multi-car support (each car is a tab in one spreadsheet).
@@ -39,7 +40,8 @@ easy to lose, and impossible to share.
 - Installable PWA with offline **viewing** of last-loaded data.
 
 ### Explicitly v2+ (not in v1)
-- **Expenses** — logging non-fuel costs (service, tolls, insurance) in a *separate*
+
+- **Expenses** — logging non-fuel costs (service, tolls, insurance) in a _separate_
   table. v1 keeps the fuel log clean and reserves the structure for this.
 - Maintenance / service records, repairs, tire changes.
 - Documents & renewal reminders (insurance, license).
@@ -47,6 +49,7 @@ easy to lose, and impossible to share.
 - Photo attachments of receipts.
 
 ### Non-goals (probably never)
+
 - PitStop-hosted accounts or database.
 - Selling data / analytics on third-party servers.
 
@@ -97,15 +100,15 @@ easy to lose, and impossible to share.
   hour; when one expires the app silently requests a new one, falling back to a
   "reconnect" tap.
 - **Scope — recommended:** `https://www.googleapis.com/auth/drive.file` **+ Google
-  Picker.** This is a **non-sensitive** scope: the app can only touch the *specific
-  file the user picks* (or files it creates). Benefits:
+  Picker.** This is a **non-sensitive** scope: the app can only touch the _specific
+  file the user picks_ (or files it creates). Benefits:
   - **No Google app-verification** required, even when published.
   - Cleaner, less scary consent screen.
   - Onboarding becomes "pick your PitStop sheet" via the Google Picker.
 - **Scope — simpler fallback:** `https://www.googleapis.com/auth/spreadsheets` +
   paste-a-link onboarding. Easier to build, but this is a **sensitive** scope:
   - Fine for our small group in **"Testing"** publishing mode (add each person as a
-    *test user*, max 100). Test users see a one-time "unverified app" warning they can
+    _test user_, max 100). Test users see a one-time "unverified app" warning they can
     click through.
   - Going fully public would require Google verification.
 - **Decision:** ship with **`drive.file` + Picker** to avoid verification and
@@ -116,25 +119,25 @@ easy to lose, and impossible to share.
 There is no shared app login. Every person authenticates as **themselves**; the Google
 Sheet's own sharing is the only access control.
 
-| Ingredient | Identifies | Shared or personal |
-|---|---|---|
-| **Client ID** | the PitStop app | one public value, same for everyone |
-| **Sheet ID** | the file (from its URL) | same for everyone using that sheet |
-| **Access token** | one signed-in user | personal, ~1h, in that user's browser only |
-| **Drive sharing** | who may read/write | the real gate — set via Drive's Share button |
+| Ingredient        | Identifies              | Shared or personal                           |
+| ----------------- | ----------------------- | -------------------------------------------- |
+| **Client ID**     | the PitStop app         | one public value, same for everyone          |
+| **Sheet ID**      | the file (from its URL) | same for everyone using that sheet           |
+| **Access token**  | one signed-in user      | personal, ~1h, in that user's browser only   |
+| **Drive sharing** | who may read/write      | the real gate — set via Drive's Share button |
 
 **Flow (you vs. your partner):** each opens PitStop, signs in with their **own** Google
 account, and receives their **own** short-lived token. Both use the same public Client
-ID and the same Sheet ID. On **every** request Google re-checks *that token's user*
+ID and the same Sheet ID. On **every** request Google re-checks _that token's user_
 against the file's sharing list — owner/Editor → read + write; Viewer → read-only (app
 drops to read-only mode); no access → denied. Tokens are never shared between people.
 
 **Who do you add, and where?**
 
 - **Cloud project members (IAM):** ❌ never — that list is only for people who
-  *develop/administer* the app, not end users.
+  _develop/administer_ the app, not end users.
 - **OAuth "test users":** needed **only if** the consent screen is left in **Testing**
-  mode. Because **`drive.file`** is a *non-sensitive* scope, you can publish the consent
+  mode. Because **`drive.file`** is a _non-sensitive_ scope, you can publish the consent
   screen to **"In production" without Google verification**, so **no user is added
   anywhere.**
 - **To grant someone access:** just **share the Sheet** with their Google account in
@@ -158,18 +161,18 @@ access is purely a Drive share — nothing per-user in the Cloud project.
 
 ## 5. Tech stack
 
-| Concern | Choice | Notes |
-|---|---|---|
-| Framework | **React + TypeScript** | Per your preference (React over Vue/Svelte). |
-| Build/dev | **Vite** | Fast, static output for Pages. |
-| Routing | **React Router (hash history)** | Avoids Pages deep-link 404s. |
-| Charts | **Chart.js** (`react-chartjs-2`) | Good RTL support; lightweight. |
-| Auth | **Google Identity Services** | Token model, loaded via Google script. |
-| Sheets access | **Sheets API v4 via `fetch`** | No heavy SDK needed in-browser. |
-| File pick | **Google Picker API** | For the `drive.file` onboarding flow. |
-| PWA | **vite-plugin-pwa** (Workbox) | Installable + offline app shell/read. |
-| Styling | Plain CSS / CSS Modules (designer-led) | RTL via logical properties; see §10. |
-| i18n | Simple Hebrew strings module | Structured so multi-language is easy later. |
+| Concern       | Choice                                 | Notes                                        |
+| ------------- | -------------------------------------- | -------------------------------------------- |
+| Framework     | **React + TypeScript**                 | Per your preference (React over Vue/Svelte). |
+| Build/dev     | **Vite**                               | Fast, static output for Pages.               |
+| Routing       | **React Router (hash history)**        | Avoids Pages deep-link 404s.                 |
+| Charts        | **Chart.js** (`react-chartjs-2`)       | Good RTL support; lightweight.               |
+| Auth          | **Google Identity Services**           | Token model, loaded via Google script.       |
+| Sheets access | **Sheets API v4 via `fetch`**          | No heavy SDK needed in-browser.              |
+| File pick     | **Google Picker API**                  | For the `drive.file` onboarding flow.        |
+| PWA           | **vite-plugin-pwa** (Workbox)          | Installable + offline app shell/read.        |
+| Styling       | Plain CSS / CSS Modules (designer-led) | RTL via logical properties; see §10.         |
+| i18n          | Simple Hebrew strings module           | Structured so multi-language is easy later.  |
 
 > Vue would be an equally good fit; the whole design is framework-agnostic, so we can
 > swap if you change your mind.
@@ -214,25 +217,27 @@ tab, writes a known layout **and defines named ranges** it then reads/writes by 
 
 ### 6.2 Fuel-log columns (v1)
 
-| Col | Field | Type | Req? | Notes |
-|---|---|---|---|---|
-| A | Date | date | ✔ | Defaults to today in the form. |
-| B | Odometer (km) | number | ✔ | Cumulative reading; must be ≥ previous row. |
-| C | Liters | number | ✔ | Amount added this fill. |
-| D | Total price (₪) | number | – | Optional; auto-derives ₪/L. |
-| E | Price / L (₪) | number | – | Optional; auto-derives total. |
-| F | Efficiency (km/L) | formula | auto | `(B_now − B_prev) / C_now`; blank on row 1. |
-| G | Notes | text | – | Free text. |
+| Col | Field             | Type    | Req? | Notes                                       |
+| --- | ----------------- | ------- | ---- | ------------------------------------------- |
+| A   | Date              | date    | ✔    | Defaults to today in the form.              |
+| B   | Odometer (km)     | number  | ✔    | Cumulative reading; must be ≥ previous row. |
+| C   | Liters            | number  | ✔    | Amount added this fill.                     |
+| D   | Total price (₪)   | number  | –    | Optional; auto-derives ₪/L.                 |
+| E   | Price / L (₪)     | number  | –    | Optional; auto-derives total.               |
+| F   | Efficiency (km/L) | formula | auto | `(B_now − B_prev) / C_now`; blank on row 1. |
+| G   | Notes             | text    | –    | Free text.                                  |
 
 > D and E are linked: entering either one auto-fills the other from Liters in the
 > form. Storing both is convenient and matches receipts.
 
 ### 6.3 Reserved for v2 (not created in v1)
+
 - A separate **Expenses** table (its own tab, or a clearly separated block) with its
   own columns (date, category, amount ₪, odometer, notes). Kept separate because its
   shape differs from fuel records.
 
 ### 6.4 Empty vs existing sheet
+
 - **Empty tab / new car:** PitStop injects the layout above + named ranges + the
   efficiency formula + schema marker.
 - **Existing valid tab:** detected via the schema marker and named ranges; data is
@@ -245,25 +250,30 @@ tab, writes a known layout **and defines named ranges** it then reads/writes by 
 ## 7. Efficiency & statistics definitions
 
 ### 7.1 Per-fill efficiency (the headline number)
+
 ```
 efficiency(km/L) at fill N = (odometer_N − odometer_{N−1}) / liters_N
 ```
+
 - Divides the distance since the last fill by the fuel added **this** fill (the fuel
   that refilled the tank for that distance). Requires that both this and the previous
   fill topped up the tank.
 - **First fill:** no previous odometer → efficiency is blank.
 - **Partial fills:** a partial top-up makes that single row read high (and the next
-  full fill read low). This is expected; individual rows are *estimates*.
+  full fill read low). This is expected; individual rows are _estimates_.
 
 ### 7.2 Robust average (partial-fill proof)
+
 ```
 average efficiency = (odometer_last − odometer_first) / Σ(liters, excluding first fill)
 ```
+
 - Because it sums all distance over all fuel, partial fills wash out. This is the
   **trustworthy** number, shown alongside the last-fill value so the headline is never
   misleading. A rolling window (e.g. last 5 fills) is also offered.
 
 ### 7.3 Stats page metrics (v1)
+
 - Average efficiency (lifetime + rolling), **best** and **worst** fill.
 - Total distance, total liters, total spend (₪).
 - Average **₪/L**, latest ₪/L, and price trend.
@@ -279,7 +289,7 @@ average efficiency = (odometer_last − odometer_first) / Σ(liters, excluding f
 > Visual design defined in `DESIGN.md` (see §9.1). Below is structure & behavior only.
 
 1. **Onboarding / Connect**
-   - Sign in with Google → pick your PitStop sheet (Picker) *or* paste its link.
+   - Sign in with Google → pick your PitStop sheet (Picker) _or_ paste its link.
    - If the sheet/tab is empty, offer "set up my car" (injects structure).
    - Remembers the sheet locally so it's one-time.
 
@@ -354,18 +364,18 @@ supersedes `design-brief.md`'s brief-only guidance now that the design is in-hou
 
 ## 12. Error handling & edge cases
 
-| Case | Behavior |
-|---|---|
-| Not signed in | Gate app behind sign-in; explain why Google is needed. |
-| Token expired | Silent refresh; else a "reconnect" prompt. |
-| No sheet chosen | Onboarding flow. |
-| Permission denied (view-only) | Read-only mode; disable add/edit with a note. |
-| Empty tab | Offer to inject structure. |
-| Malformed tab | Error + "repair structure"; never silently corrupt. |
-| First fuelling | Efficiency blank; explain one more fill is needed. |
-| Odometer < previous | Warn (possible typo / odometer reset); allow override. |
-| Concurrent edits | Appends rarely conflict; last-write-wins on edits; re-read after write. |
-| API rate limit | Backoff + retry; friendly message. |
+| Case                          | Behavior                                                                |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| Not signed in                 | Gate app behind sign-in; explain why Google is needed.                  |
+| Token expired                 | Silent refresh; else a "reconnect" prompt.                              |
+| No sheet chosen               | Onboarding flow.                                                        |
+| Permission denied (view-only) | Read-only mode; disable add/edit with a note.                           |
+| Empty tab                     | Offer to inject structure.                                              |
+| Malformed tab                 | Error + "repair structure"; never silently corrupt.                     |
+| First fuelling                | Efficiency blank; explain one more fill is needed.                      |
+| Odometer < previous           | Warn (possible typo / odometer reset); allow override.                  |
+| Concurrent edits              | Appends rarely conflict; last-write-wins on edits; re-read after write. |
+| API rate limit                | Backoff + retry; friendly message.                                      |
 
 ---
 

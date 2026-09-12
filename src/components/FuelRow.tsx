@@ -1,15 +1,22 @@
-import { cn } from '../lib/cn'
+import { cn } from '../lib/cn';
 
 export interface FuelRowProps {
-  costLabel: string
-  date: string
-  efficiencyLabel: string
-  meta: string
-  status: 'good' | 'warn'
-  onClick?: () => void
+  costLabel: string;
+  date: string;
+  efficiencyLabel: string;
+  meta: string;
+  status: 'good' | 'warn';
+  onClick?: () => void;
 }
 
-export const FuelRow = ({ costLabel, date, efficiencyLabel, meta, onClick, status }: FuelRowProps) => (
+export const FuelRow = ({
+  costLabel,
+  date,
+  efficiencyLabel,
+  meta,
+  onClick,
+  status,
+}: FuelRowProps) => (
   <button
     type="button"
     onClick={onClick}
@@ -34,4 +41,4 @@ export const FuelRow = ({ costLabel, date, efficiencyLabel, meta, onClick, statu
       <span className="ltr-num mt-0.5 block text-xs text-on-surface-variant">{costLabel}</span>
     </span>
   </button>
-)
+);

@@ -1,15 +1,15 @@
-import { cn } from '../lib/cn'
+import { cn } from '../lib/cn';
 
 export interface SegmentedOption<T extends string> {
-  label: string
-  value: T
+  label: string;
+  value: T;
 }
 
 export interface SegmentedControlProps<T extends string> {
-  onChange: (value: T) => void
-  options: SegmentedOption<T>[]
-  value: T
-  className?: string
+  onChange: (value: T) => void;
+  options: SegmentedOption<T>[];
+  value: T;
+  className?: string;
 }
 
 export const SegmentedControl = <T extends string>({
@@ -18,7 +18,12 @@ export const SegmentedControl = <T extends string>({
   options,
   value,
 }: SegmentedControlProps<T>) => (
-  <div className={cn('flex gap-1 rounded-full border border-ghost bg-surface-container p-1', className)}>
+  <div
+    className={cn(
+      'flex gap-1 rounded-full border border-ghost bg-surface-container p-1',
+      className,
+    )}
+  >
     {options.map((opt) => (
       <button
         key={opt.value}
@@ -33,4 +38,4 @@ export const SegmentedControl = <T extends string>({
       </button>
     ))}
   </div>
-)
+);

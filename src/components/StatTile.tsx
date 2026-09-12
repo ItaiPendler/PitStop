@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
-import { cn } from '../lib/cn'
+import type { ReactNode } from 'react';
+import { cn } from '../lib/cn';
 
 export interface StatTileProps {
-  label: string
-  value: ReactNode
-  className?: string
-  unit?: string
+  label: string;
+  value: ReactNode;
+  className?: string;
+  unit?: string;
 }
 
 export const StatTile = ({ className, label, unit, value }: StatTileProps) => (
@@ -21,4 +21,4 @@ export const StatTile = ({ className, label, unit, value }: StatTileProps) => (
       {unit && <span className="ms-1 text-xs font-normal text-on-surface-variant">{unit}</span>}
     </span>
   </div>
-)
+);
