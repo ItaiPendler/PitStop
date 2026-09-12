@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Card, TextInput } from '../../components';
 import { useAuth } from '../../auth';
 import { useSheet } from '../../sheet';
@@ -16,10 +17,17 @@ import {
 
 export const OnboardingPage = () => {
   const { signIn, status } = useAuth();
-  const { connectExisting, createNew, error, isBusy } = useSheet();
+  const { connectExisting, createNew, error, isBusy, sheet } = useSheet();
   const [newSheetTitle, setNewSheetTitle] = useState('הרכב שלי');
+  const navigate = useNavigate();
 
   const isSignedIn = status === 'signed-in';
+
+  // Once a sheet is picked or created, leave onboarding automatically —
+  // nothing else was navigating away from this screen otherwise.
+  useEffect(() => {
+    if (sheet) navigate('/', { replace: true });
+  }, [navigate, sheet]);
 
   return (
     <div className={onboardingPage()}>
