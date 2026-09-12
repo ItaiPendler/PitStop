@@ -1,7 +1,8 @@
+import { cloneElement, isValidElement, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
 
 export interface NavItem {
-  icon: string;
+  icon: ReactNode;
   key: string;
   label: string;
   active?: boolean;
@@ -59,7 +60,27 @@ const NavButton = ({ item }: { item: NavItem }) => (
     )}
   >
     {item.active && <span className="absolute top-0 h-[3px] w-7 rounded-b-sm bg-primary" />}
-    <span className="text-xl leading-none">{item.icon}</span>
+    <span className="flex h-[22px] items-center justify-center leading-none">
+      {renderNavIcon(item.icon)}
+    </span>
     <span>{item.label}</span>
   </button>
 );
+
+const renderNavIcon = (icon: ReactNode) => {
+  if (
+    isValidElement<{
+      'aria-hidden'?: boolean;
+      className?: string;
+      strokeWidth?: number;
+    }>(icon)
+  ) {
+    return cloneElement(icon, {
+      'aria-hidden': true,
+      className: cn('h-[22px] w-[22px] shrink-0', icon.props.className),
+      strokeWidth: icon.props.strokeWidth ?? 1.9,
+    });
+  }
+
+  return icon;
+};
