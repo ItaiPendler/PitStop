@@ -45,9 +45,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAccessToken(response.access_token);
       setStatus('signed-in');
       scheduleRefreshRef.current(response.expires_in);
+      return response.access_token;
     } catch (signInError) {
       setStatus('error');
       setError(signInError instanceof Error ? signInError.message : 'שגיאה בהתחברות ל-Google.');
+      return undefined;
     }
   }, []);
 

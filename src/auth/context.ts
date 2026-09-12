@@ -5,7 +5,7 @@ export type AuthStatus = 'error' | 'signed-in' | 'signed-out' | 'signing-in';
 export interface AuthState {
   accessToken: string | undefined;
   error: string | undefined;
-  signIn: () => Promise<void>;
+  signIn: () => Promise<string | undefined>;
   signOut: () => Promise<void>;
   status: AuthStatus;
 }

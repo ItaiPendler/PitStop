@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Home, Info, LineChart, Settings } from 'lucide-react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BottomNav, Button, Chip, TopBar } from '../components';
 import type { NavItem } from '../components';
@@ -43,24 +44,30 @@ export const AppShell = () => {
   const leftItems: NavItem[] = [
     {
       active: location.pathname === '/',
-      icon: '🏠',
+      icon: <Home />,
       key: 'home',
       label: 'בית',
       onClick: () => navigate('/'),
     },
     {
       active: location.pathname === '/stats',
-      icon: '📊',
+      icon: <LineChart />,
       key: 'stats',
       label: 'סטטיסטיקה',
       onClick: () => navigate('/stats'),
     },
   ];
   const rightItems: NavItem[] = [
-    { hidden: true, icon: '·', key: 'spacer', label: '' },
+    {
+      active: location.pathname === '/about',
+      icon: <Info />,
+      key: 'about',
+      label: 'אודות',
+      onClick: () => navigate('/about'),
+    },
     {
       active: location.pathname === '/settings',
-      icon: '⚙️',
+      icon: <Settings />,
       key: 'settings',
       label: 'הגדרות',
       onClick: () => navigate('/settings'),
