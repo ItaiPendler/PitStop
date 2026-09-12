@@ -37,7 +37,11 @@ const findSheetByTitle = (
 };
 
 const hasNamedRange = (namedRanges: NamedRange[], name: string, sheetId: number): boolean =>
-  namedRanges.some((range) => range.name === name && range.range.sheetId === sheetId);
+  // The Sheets API omits `range.sheetId` entirely when it's `0` (a proto3
+  // default-value JSON-serialization quirk), so a named range on the
+  // spreadsheet's first tab (sheetId 0 — the common case) comes back with
+  // no `sheetId` field at all. Treat a missing field as `0`, not `undefined`.
+  namedRanges.some((range) => range.name === name && (range.range.sheetId ?? 0) === sheetId);
 
 /**
  * Reads the tab's marker cell + named ranges and classifies it. Throws a
