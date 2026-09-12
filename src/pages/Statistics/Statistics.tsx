@@ -1,4 +1,4 @@
-import { StatTile } from '../../components'
+import { StatTile } from '../../components';
 
 export const StatisticsPage = () => (
   <div className="flex flex-col gap-6">
@@ -11,4 +11,4 @@ export const StatisticsPage = () => (
 
     <p className="text-sm text-on-surface-variant">גרפי מגמה יתווספו בשלב הבא.</p>
   </div>
-)
+);

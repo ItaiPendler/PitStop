@@ -1,173 +1,177 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PitStop — לוח בקרה</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<div class="app">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PitStop — לוח בקרה</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <div class="topbar">
+        <div class="topbar__title">🏁 PitStop</div>
+        <div class="topbar__car-switch">
+          <span>קורולה 2018</span>
+          <span>⌄</span>
+        </div>
+        <div class="topbar__avatar">א</div>
+      </div>
 
-  <div class="topbar">
-    <div class="topbar__title">🏁 PitStop</div>
-    <div class="topbar__car-switch">
-      <span>קורולה 2018</span>
-      <span>⌄</span>
+      <main>
+        <!-- Hero: last fill efficiency, as a gauge -->
+        <section class="hero-card">
+          <div class="hero-card__label">צריכה בתדלוק האחרון</div>
+
+          <div class="gauge-wrap">
+            <svg viewBox="0 0 200 150">
+              <!-- color-zone track: low / mid / high efficiency -->
+              <path class="gauge__track gauge__track--low" d="M 20 100 A 80 80 0 0 1 60 30.72" />
+              <path class="gauge__track gauge__track--mid" d="M 60 30.72 A 80 80 0 0 1 140 30.72" />
+              <path class="gauge__track gauge__track--high" d="M 140 30.72 A 80 80 0 0 1 180 100" />
+
+              <!-- range labels -->
+              <text class="gauge__tick-label" x="14" y="115">6</text>
+              <text class="gauge__tick-label" x="100" y="14">13</text>
+              <text class="gauge__tick-label" x="186" y="115">20</text>
+
+              <!-- rolling-average marker (ghost tick on the track) -->
+              <line class="gauge__avg-marker" x1="122.3" y1="31.5" x2="127.8" y2="14.4" />
+
+              <!-- needle: last-fill value -->
+              <line class="gauge__needle" x1="100" y1="100" x2="134.4" y2="44.9" />
+              <circle class="gauge__pivot-ring" cx="100" cy="100" r="9" />
+              <circle class="gauge__pivot" cx="100" cy="100" r="4" />
+
+              <!-- center readout -->
+              <text class="gauge__value-text" x="100" y="120">14.2</text>
+              <text class="gauge__unit-text" x="100" y="138">ק״מ לליטר</text>
+            </svg>
+          </div>
+
+          <div class="gauge__legend">
+            <span class="gauge__legend-item">
+              <span class="gauge__legend-swatch"></span> תדלוק אחרון
+            </span>
+            <span class="gauge__legend-item">
+              <span class="gauge__legend-swatch gauge__legend-swatch--avg"></span> ממוצע מתגלגל
+            </span>
+          </div>
+
+          <div class="hero-card__sub">
+            <span>ממוצע מתגלגל (5 תדלוקים):</span>
+            <b class="ltr-num">13.6 ק״מ/ל</b>
+            <span class="chip chip--optimal" style="margin-inline-start: auto">
+              <span class="chip__dot"></span> תקין
+            </span>
+          </div>
+        </section>
+
+        <!-- Car summary -->
+        <section class="card car-summary">
+          <div class="car-summary__icon">🚗</div>
+          <div>
+            <div class="car-summary__title">קורולה 2018 · 12-345-67</div>
+            <div class="car-summary__meta">
+              קילומטראז׳ נוכחי: <span class="ltr-num">41,980</span> ק״מ · תדלוק אחרון:
+              <span class="ltr-num">19/01/2026</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick stats -->
+        <section class="stat-grid">
+          <div class="stat-tile">
+            <div class="stat-tile__label">עלות תדלוק אחרון</div>
+            <div class="stat-tile__value ltr-num">₪158.20</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile__label">מחיר לליטר</div>
+            <div class="stat-tile__value ltr-num">₪5.65</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile__label">סה״כ ק״מ (השנה)</div>
+            <div class="stat-tile__value ltr-num">
+              6,780 <span class="stat-tile__unit">ק״מ</span>
+            </div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile__label">עלות ל-100 ק״מ</div>
+            <div class="stat-tile__value ltr-num">₪39.80</div>
+          </div>
+        </section>
+
+        <!-- Recent fuelings -->
+        <section>
+          <div class="section-header">
+            <span class="section-header__title">תדלוקים אחרונים</span>
+            <a href="stats.html" class="section-header__action">כל הסטטיסטיקות ←</a>
+          </div>
+        </section>
+
+        <section class="fuel-list">
+          <a class="fuel-row" href="add-fueling.html">
+            <div class="fuel-row__icon">⛽</div>
+            <div class="fuel-row__main">
+              <div class="fuel-row__date">19 ינואר 2026</div>
+              <div class="fuel-row__meta">
+                <span class="ltr-num">28.0</span> ליטר · <span class="ltr-num">41,980</span> ק״מ
+              </div>
+            </div>
+            <div class="fuel-row__stats">
+              <div class="fuel-row__eff is-good ltr-num">14.2 ק״מ/ל</div>
+              <div class="fuel-row__cost ltr-num">₪158.20</div>
+            </div>
+          </a>
+
+          <a class="fuel-row" href="add-fueling.html">
+            <div class="fuel-row__icon">⛽</div>
+            <div class="fuel-row__main">
+              <div class="fuel-row__date">4 ינואר 2026</div>
+              <div class="fuel-row__meta">
+                <span class="ltr-num">32.1</span> ליטר · <span class="ltr-num">41,560</span> ק״מ
+              </div>
+            </div>
+            <div class="fuel-row__stats">
+              <div class="fuel-row__eff is-warn ltr-num">11.8 ק״מ/ל</div>
+              <div class="fuel-row__cost ltr-num">₪181.20</div>
+            </div>
+          </a>
+
+          <a class="fuel-row" href="add-fueling.html">
+            <div class="fuel-row__icon">⛽</div>
+            <div class="fuel-row__main">
+              <div class="fuel-row__date">22 דצמבר 2025</div>
+              <div class="fuel-row__meta">
+                <span class="ltr-num">30.5</span> ליטר · <span class="ltr-num">41,180</span> ק״מ
+              </div>
+            </div>
+            <div class="fuel-row__stats">
+              <div class="fuel-row__eff is-good ltr-num">13.9 ק״מ/ל</div>
+              <div class="fuel-row__cost ltr-num">₪172.80</div>
+            </div>
+          </a>
+        </section>
+      </main>
+
+      <nav class="bottom-nav">
+        <a class="bottom-nav__item is-active" href="index.html">
+          <span class="bottom-nav__icon">🏠</span>
+          <span>בית</span>
+        </a>
+        <a class="bottom-nav__item" href="stats.html">
+          <span class="bottom-nav__icon">📊</span>
+          <span>סטטיסטיקה</span>
+        </a>
+        <a class="bottom-nav__fab" href="add-fueling.html" aria-label="הוסף תדלוק">+</a>
+        <a class="bottom-nav__item" href="#" style="visibility: hidden">
+          <span class="bottom-nav__icon">·</span>
+          <span>·</span>
+        </a>
+        <a class="bottom-nav__item" href="settings.html">
+          <span class="bottom-nav__icon">⚙️</span>
+          <span>הגדרות</span>
+        </a>
+      </nav>
     </div>
-    <div class="topbar__avatar">א</div>
-  </div>
-
-  <main>
-
-    <!-- Hero: last fill efficiency, as a gauge -->
-    <section class="hero-card">
-      <div class="hero-card__label">צריכה בתדלוק האחרון</div>
-
-      <div class="gauge-wrap">
-        <svg viewBox="0 0 200 150">
-          <!-- color-zone track: low / mid / high efficiency -->
-          <path class="gauge__track gauge__track--low" d="M 20 100 A 80 80 0 0 1 60 30.72" />
-          <path class="gauge__track gauge__track--mid" d="M 60 30.72 A 80 80 0 0 1 140 30.72" />
-          <path class="gauge__track gauge__track--high" d="M 140 30.72 A 80 80 0 0 1 180 100" />
-
-          <!-- range labels -->
-          <text class="gauge__tick-label" x="14" y="115">6</text>
-          <text class="gauge__tick-label" x="100" y="14">13</text>
-          <text class="gauge__tick-label" x="186" y="115">20</text>
-
-          <!-- rolling-average marker (ghost tick on the track) -->
-          <line class="gauge__avg-marker" x1="122.3" y1="31.5" x2="127.8" y2="14.4" />
-
-          <!-- needle: last-fill value -->
-          <line class="gauge__needle" x1="100" y1="100" x2="134.4" y2="44.9" />
-          <circle class="gauge__pivot-ring" cx="100" cy="100" r="9" />
-          <circle class="gauge__pivot" cx="100" cy="100" r="4" />
-
-          <!-- center readout -->
-          <text class="gauge__value-text" x="100" y="120">14.2</text>
-          <text class="gauge__unit-text" x="100" y="138">ק״מ לליטר</text>
-        </svg>
-      </div>
-
-      <div class="gauge__legend">
-        <span class="gauge__legend-item">
-          <span class="gauge__legend-swatch"></span> תדלוק אחרון
-        </span>
-        <span class="gauge__legend-item">
-          <span class="gauge__legend-swatch gauge__legend-swatch--avg"></span> ממוצע מתגלגל
-        </span>
-      </div>
-
-      <div class="hero-card__sub">
-        <span>ממוצע מתגלגל (5 תדלוקים):</span>
-        <b class="ltr-num">13.6 ק״מ/ל</b>
-        <span class="chip chip--optimal" style="margin-inline-start:auto;">
-          <span class="chip__dot"></span> תקין
-        </span>
-      </div>
-    </section>
-
-    <!-- Car summary -->
-    <section class="card car-summary">
-      <div class="car-summary__icon">🚗</div>
-      <div>
-        <div class="car-summary__title">קורולה 2018 · 12-345-67</div>
-        <div class="car-summary__meta">
-          קילומטראז׳ נוכחי: <span class="ltr-num">41,980</span> ק״מ ·
-          תדלוק אחרון: <span class="ltr-num">19/01/2026</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Quick stats -->
-    <section class="stat-grid">
-      <div class="stat-tile">
-        <div class="stat-tile__label">עלות תדלוק אחרון</div>
-        <div class="stat-tile__value ltr-num">₪158.20</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-tile__label">מחיר לליטר</div>
-        <div class="stat-tile__value ltr-num">₪5.65</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-tile__label">סה״כ ק״מ (השנה)</div>
-        <div class="stat-tile__value ltr-num">6,780 <span class="stat-tile__unit">ק״מ</span></div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-tile__label">עלות ל-100 ק״מ</div>
-        <div class="stat-tile__value ltr-num">₪39.80</div>
-      </div>
-    </section>
-
-    <!-- Recent fuelings -->
-    <section>
-      <div class="section-header">
-        <span class="section-header__title">תדלוקים אחרונים</span>
-        <a href="stats.html" class="section-header__action">כל הסטטיסטיקות ←</a>
-      </div>
-    </section>
-
-    <section class="fuel-list">
-      <a class="fuel-row" href="add-fueling.html">
-        <div class="fuel-row__icon">⛽</div>
-        <div class="fuel-row__main">
-          <div class="fuel-row__date">19 ינואר 2026</div>
-          <div class="fuel-row__meta"><span class="ltr-num">28.0</span> ליטר · <span class="ltr-num">41,980</span> ק״מ</div>
-        </div>
-        <div class="fuel-row__stats">
-          <div class="fuel-row__eff is-good ltr-num">14.2 ק״מ/ל</div>
-          <div class="fuel-row__cost ltr-num">₪158.20</div>
-        </div>
-      </a>
-
-      <a class="fuel-row" href="add-fueling.html">
-        <div class="fuel-row__icon">⛽</div>
-        <div class="fuel-row__main">
-          <div class="fuel-row__date">4 ינואר 2026</div>
-          <div class="fuel-row__meta"><span class="ltr-num">32.1</span> ליטר · <span class="ltr-num">41,560</span> ק״מ</div>
-        </div>
-        <div class="fuel-row__stats">
-          <div class="fuel-row__eff is-warn ltr-num">11.8 ק״מ/ל</div>
-          <div class="fuel-row__cost ltr-num">₪181.20</div>
-        </div>
-      </a>
-
-      <a class="fuel-row" href="add-fueling.html">
-        <div class="fuel-row__icon">⛽</div>
-        <div class="fuel-row__main">
-          <div class="fuel-row__date">22 דצמבר 2025</div>
-          <div class="fuel-row__meta"><span class="ltr-num">30.5</span> ליטר · <span class="ltr-num">41,180</span> ק״מ</div>
-        </div>
-        <div class="fuel-row__stats">
-          <div class="fuel-row__eff is-good ltr-num">13.9 ק״מ/ל</div>
-          <div class="fuel-row__cost ltr-num">₪172.80</div>
-        </div>
-      </a>
-    </section>
-
-  </main>
-
-  <nav class="bottom-nav">
-    <a class="bottom-nav__item is-active" href="index.html">
-      <span class="bottom-nav__icon">🏠</span>
-      <span>בית</span>
-    </a>
-    <a class="bottom-nav__item" href="stats.html">
-      <span class="bottom-nav__icon">📊</span>
-      <span>סטטיסטיקה</span>
-    </a>
-    <a class="bottom-nav__fab" href="add-fueling.html" aria-label="הוסף תדלוק">+</a>
-    <a class="bottom-nav__item" href="#" style="visibility:hidden;">
-      <span class="bottom-nav__icon">·</span>
-      <span>·</span>
-    </a>
-    <a class="bottom-nav__item" href="settings.html">
-      <span class="bottom-nav__icon">⚙️</span>
-      <span>הגדרות</span>
-    </a>
-  </nav>
-
-</div>
-</body>
+  </body>
 </html>

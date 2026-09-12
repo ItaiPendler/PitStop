@@ -2,14 +2,14 @@ PitStop
 
 currently i track my cars fuel intake and kilometers driven on the fuel receipt, for each fueling i record the date, the amount of fuel added, the price, and the odometer reading. and calculate the fuel efficiency based on this data (kilometers per liter).
 
-i want to stop using paper receipts and manual calculations for tracking my car's fuel efficiency. and i want my partner to also be able to see the info on their phone. 
+i want to stop using paper receipts and manual calculations for tracking my car's fuel efficiency. and i want my partner to also be able to see the info on their phone.
 
 a website for tracking stuff about your car.
 a collaborative website that connects to a shared GOOGLE SHEET. This way, the website doesn't store anything itself, and multiple people can access and update the same information.
 If the SHEET is empty: the website will inject a basic structure with information about the car and a template for storing car-related data.
 If the SHEET already contains the appropriate structure, the information will be displayed in a user-friendly manner.
 
-pages: 
+pages:
 main page: car details and fuel efficiency of last fueling in a big display, along with a list of previous fueling and their details.
 add fueling page: a form for adding a new fueling, including date, amount of fuel, price, and odometer reading.
 settings page: a page for managing car details, such as make, model, year, and license plate number. you can also switch between different cars if you have more than one (different cars are stored in the same google SHEET on different sheets).

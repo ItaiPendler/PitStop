@@ -15,24 +15,24 @@ Sheets API, with each user authenticated as themselves via Google Identity Servi
 
 Always check these before inventing new behavior — they are the spec, not this file.
 
-| Document | What it covers |
-|---|---|
-| **`spec.md`** | The full functional & technical spec. Sections you'll need most: |
-| — `spec.md` §4 | Core architecture — client-only model, no backend, GitHub Pages deploy |
-| — `spec.md` §4.1 / §4.1.1 | Google auth (`drive.file` scope), multi-user token/access model |
-| — `spec.md` §5 | Tech stack decisions (React, Vite, Chart.js, GIS, Picker, vite-plugin-pwa) |
-| — `spec.md` §6 | Google Sheet data model: per-car tab layout, named ranges, fuel-log columns |
-| — `spec.md` §7 | Efficiency & statistics formulas (per-fill km/L, robust rolling average, stat definitions) |
-| — `spec.md` §8 | The 6 screens and their behavior (Onboarding, Dashboard, Add/Edit fueling, Statistics, Settings, About) |
-| — `spec.md` §9 / §9.1 | PWA/offline behavior; visual design pointer (dark-only, see DESIGN.md) |
-| — `spec.md` §10 | Localization & RTL requirements |
-| — `spec.md` §11 | Security & privacy constraints |
-| — `spec.md` §12 | Required error/edge-case handling (table of states to support) |
-| — `spec.md` §13 | Deployment/Google Cloud setup checklist |
-| — `spec.md` §15 | Locked decisions log — don't re-litigate these without asking the user |
-| **`DESIGN.md`** | The canonical visual design system: color tokens, typography (Rubik + JetBrains Mono), spacing/radii, shadows/glows, component specs. **Dark theme only — no light theme.** |
-| **`mockups/`** | Static HTML/CSS reference implementation of the design system (dashboard gauge, add-fueling form) — use as a structural/visual reference when building the real components. |
-| **`readme.md`** | Original informal brain-dump; superseded by `spec.md` but useful for background/tone. |
+| Document                  | What it covers                                                                                                                                                              |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`spec.md`**             | The full functional & technical spec. Sections you'll need most:                                                                                                            |
+| — `spec.md` §4            | Core architecture — client-only model, no backend, GitHub Pages deploy                                                                                                      |
+| — `spec.md` §4.1 / §4.1.1 | Google auth (`drive.file` scope), multi-user token/access model                                                                                                             |
+| — `spec.md` §5            | Tech stack decisions (React, Vite, Chart.js, GIS, Picker, vite-plugin-pwa)                                                                                                  |
+| — `spec.md` §6            | Google Sheet data model: per-car tab layout, named ranges, fuel-log columns                                                                                                 |
+| — `spec.md` §7            | Efficiency & statistics formulas (per-fill km/L, robust rolling average, stat definitions)                                                                                  |
+| — `spec.md` §8            | The 6 screens and their behavior (Onboarding, Dashboard, Add/Edit fueling, Statistics, Settings, About)                                                                     |
+| — `spec.md` §9 / §9.1     | PWA/offline behavior; visual design pointer (dark-only, see DESIGN.md)                                                                                                      |
+| — `spec.md` §10           | Localization & RTL requirements                                                                                                                                             |
+| — `spec.md` §11           | Security & privacy constraints                                                                                                                                              |
+| — `spec.md` §12           | Required error/edge-case handling (table of states to support)                                                                                                              |
+| — `spec.md` §13           | Deployment/Google Cloud setup checklist                                                                                                                                     |
+| — `spec.md` §15           | Locked decisions log — don't re-litigate these without asking the user                                                                                                      |
+| **`DESIGN.md`**           | The canonical visual design system: color tokens, typography (Rubik + JetBrains Mono), spacing/radii, shadows/glows, component specs. **Dark theme only — no light theme.** |
+| **`mockups/`**            | Static HTML/CSS reference implementation of the design system (dashboard gauge, add-fueling form) — use as a structural/visual reference when building the real components. |
+| **`readme.md`**           | Original informal brain-dump; superseded by `spec.md` but useful for background/tone.                                                                                       |
 
 If a requirement here conflicts with `spec.md`/`DESIGN.md`, the dedicated doc wins —
 update this file instead of drifting from it.
@@ -53,13 +53,17 @@ update this file instead of drifting from it.
 - **TypeScript strict mode.** Prefer explicit types for Sheet row ↔ object mapping.
 - **Currency ₪ (ILS), distance km, volume liters**, dates `DD/MM/YYYY`.
 - **Component-led styling.** Use Tailwind utilities via `cva` (`class-variance-authority`)
-  + the shared `cn()` helper (`src/lib/cn.ts`) instead of hand-written CSS files —
-  one `.tsx` per component, no separate stylesheets. Components are `const` arrow
-  functions, not `function` declarations.
+  - the shared `cn()` helper (`src/lib/cn.ts`) instead of hand-written CSS files —
+    one `.tsx` per component, no separate stylesheets. Components are `const` arrow
+    functions, not `function` declarations.
 - **Member/key ordering is enforced by `eslint-plugin-perfectionist`:** interface and
   object-type members are sorted alphabetically with required fields before optional
   fields; object literal keys are sorted alphabetically. Run `npm run lint -- --fix`
   after writing new interfaces/objects rather than hand-ordering them.
+- **Formatting is enforced by Prettier** (`.prettierrc.json`): single quotes,
+  semicolons, trailing commas. Run `npm run format` after editing — don't rely on
+  your editor's default formatter settings, which may not match (e.g. VS Code's
+  built-in formatter defaults to double quotes/no config).
 
 ## Mandatory verification workflow
 

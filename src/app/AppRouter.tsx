@@ -1,10 +1,10 @@
-import { HashRouter, Route, Routes } from 'react-router-dom'
-import { AppShell } from './AppShell'
-import { AboutPage } from '../pages/About'
-import { AddEditFuelingPage } from '../pages/AddEditFueling'
-import { DashboardPage } from '../pages/Dashboard'
-import { SettingsPage } from '../pages/Settings'
-import { StatisticsPage } from '../pages/Statistics'
+import { HashRouter, Route, Routes } from 'react-router-dom';
+import { AppShell } from './AppShell';
+import { AboutPage } from '../pages/About';
+import { AddEditFuelingPage } from '../pages/AddEditFueling';
+import { DashboardPage } from '../pages/Dashboard';
+import { SettingsPage } from '../pages/Settings';
+import { StatisticsPage } from '../pages/Statistics';
 
 export const AppRouter = () => (
   <HashRouter>
@@ -18,4 +18,4 @@ export const AppRouter = () => (
       </Route>
     </Routes>
   </HashRouter>
-)
+);

@@ -1,4 +1,4 @@
-import { Card, Chip, FuelRow, Gauge, StatTile } from '../../components'
+import { Card, Chip, FuelRow, Gauge, StatTile } from '../../components';
 
 export const DashboardPage = () => (
   <div className="flex flex-col gap-6">
@@ -38,4 +38,4 @@ export const DashboardPage = () => (
       />
     </div>
   </div>
-)
+);

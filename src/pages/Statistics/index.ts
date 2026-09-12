@@ -1,1 +1,1 @@
-export { StatisticsPage } from './Statistics'
+export { StatisticsPage } from './Statistics';

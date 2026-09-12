@@ -132,6 +132,7 @@ spacing:
 This design system delivers a high-precision, motorsport-inspired utility aesthetic optimized for instant telemetry and daily fuel tracking. The interface blends the calm, disciplined clarity of flight instruments and pit-wall monitors with consumer-grade ergonomics. It is engineered primarily for mobile field use at bright petrol stations (one-thumb triage, glanceable numbers, high contrast), while scaling to comprehensive desktop fleet analytics.
 
 ### Visual Style
+
 - **Telemetry Precision:** Grounded in deep slate (`#0F172A`), high-visibility amber/fuel orange accents, and crisp technical readouts. Information hierarchy mirrors racing HUDs: instantaneous values are oversized and unmistakable, secondary metrics sit in low-noise auxiliary tiers.
 - **Calm Utility:** Avoids gimmicky skeuomorphism or sensory overload. The atmosphere is quiet, controlled, and trustworthy, punctuated by targeted neon-amber and performance-emerald signals.
 - **Native RTL Architecture:** Designed from the foundational grid up for bidirectional integrity, with Hebrew as the primary script, flowing naturally right-to-left with balanced metric units and numeric strings.
@@ -141,6 +142,7 @@ This design system delivers a high-precision, motorsport-inspired utility aesthe
 The system uses a dark telemetry foundation designed for high legibility under bright sunlight and night-time driving conditions alike.
 
 ### Color Roles & Rationale
+
 - **Primary (`#F59E0B` - Pit Amber):** Serves as the primary operational accent—fill triggers, active route milestones, speed alerts, and key interactive focal points.
 - **Secondary (`#10B981` - Lap Emerald):** Dedicated strictly to efficiency gains, below-budget fill-ups, optimal km/L ratings, and positive delta readouts.
 - **Tertiary (`#EA580C` - Rev Orange):** Used for peak consumption warnings, critical fuel thresholds, and overdue service alerts.
@@ -166,6 +168,7 @@ The typographic hierarchy is customized for Hebrew legibility and high-speed sca
 The system runs on an 8-point rhythmic grid, optimized for fluid adaptation across handheld mobile viewports and multi-column desktop control centers.
 
 ### Form Factor Behavior
+
 - **Mobile (Viewport < 768px):** Single-column stacked telemetry cards with a fixed 56px bottom navigation bar pinned inside the thumb zone. Outer margins stay tight at `margin: 1rem` to maximize screen real estate for quick data entry.
 - **Desktop (Viewport >= 1024px):** Reflows into a 12-column grid. Left-hand mirrored desktop sidebar (positioned physically on the right in RTL mode) handles vehicle fleet switching, while the main canvas splits into a 2:1 ratio (live telemetry graphs and refill logs vs. summary gauges and quick-add drawer).
 - **RTL Grid Mirroring:** All gutters, margins, paddings, and column offsets systematically reverse. Flex and Grid specifications rely strictly on CSS Logical Properties (`padding-inline-start`, `margin-inline-end`, `inset-inline`).
@@ -192,24 +195,29 @@ The design uses balanced, modern rounded geometry (`level 2` - 0.5rem / 8px base
 ## Components
 
 ### Buttons
+
 - **Pit Primary Button:** High-visibility amber (`#F59E0B`) background with deep slate text (`#0F172A`, Rubik 600). 48px minimum touch height for gloved or one-handed operation. On press, scales down smoothly to `0.98` scale.
 - **Telemetry Secondary:** Transparent slate background with a 1px border (`rgba(241, 245, 249, 0.16)`) and ice-white text.
 - **RTL Icon Placement:** Action icons (plus sign, pump symbol) lead on the right side of Hebrew label text with `space-sm` separation.
 
 ### Metric Readout Cards (Telemetry Tiles)
+
 - Built with a top auxiliary row containing the Hebrew metric label (e.g., "צריכה ממוצעת") in `label-sm` slate, paired with a small trend badge.
 - The hero metric is rendered in pure white `JetBrains Mono`, followed immediately by a muted Latin/Hebrew unit descriptor (e.g., `14.2` `ק"מ/ל`).
 
 ### Input Fields
+
 - Large-format, dark-filled containers (`#1E293B`) with high-contrast text inputs.
 - Numeric inputs (Odometer, Liters, ILS total) force numeric keypad mode (`inputmode="decimal"`), RTL layout direction with LTR interior alignment, and high-visibility trailing currency/unit markers pinned to the left edge of the input.
 
 ### Efficiency Status Chips
+
 - Compact pills utilizing subtle alpha-tinted backgrounds:
   - Optimal: `rgba(16, 185, 129, 0.15)` background with `#10B981` text and dot indicator.
   - Caution: `rgba(234, 88, 12, 0.15)` background with `#EA580C` text.
 - Dot status indicator always sits on the physical right (lead side in RTL).
 
 ### Selection & Toggles (Checkboxes, Radios, Segmented Controls)
+
 - Segmented fuel-grade switch (95 / 98 / Diesel) built as an integrated dark slate bar with an animated amber sliding pill indicating active state.
 - Checkboxes use 20px rounded squares with heavy checkmarks and vibrant emerald fills on confirmed state.
