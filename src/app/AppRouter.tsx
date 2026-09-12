@@ -18,6 +18,7 @@ const StatisticsPage = lazy(async () => {
 const RequireSheet = () => {
   const { status } = useAuth();
   const { sheet } = useSheet();
+  if (status === AuthStatus.Restoring) return null;
   return status === AuthStatus.SignedIn && sheet ? (
     <Outlet />
   ) : (
