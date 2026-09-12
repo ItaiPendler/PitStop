@@ -3,27 +3,25 @@ import { Home, Info, LineChart, Settings } from 'lucide-react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BottomNav, Button, Chip, TopBar } from '../components';
 import type { NavItem } from '../components';
-import { useAuth } from '../auth';
+import { AuthStatus, useAuth } from '../auth';
 
 const AuthControl = () => {
   const { signIn, signOut, status } = useAuth();
+  const isSignedIn = status === AuthStatus.SignedIn;
+  const isSigningIn = status === AuthStatus.SigningIn;
 
-  if (status === 'signed-in') {
-    return (
-      <button onClick={() => void signOut()} type="button">
-        <Chip status="optimal">מחובר</Chip>
-      </button>
-    );
-  }
-
-  return (
+  return isSignedIn ? (
+    <button onClick={() => void signOut()} type="button">
+      <Chip status="optimal">מחובר</Chip>
+    </button>
+  ) : (
     <Button
       className="min-h-9 px-3 text-xs"
-      disabled={status === 'signing-in'}
+      disabled={isSigningIn}
       onClick={() => void signIn()}
       variant="secondary"
     >
-      {status === 'signing-in' ? 'מתחבר…' : 'התחברות'}
+      {isSigningIn ? 'מתחבר…' : 'התחברות'}
     </Button>
   );
 };
