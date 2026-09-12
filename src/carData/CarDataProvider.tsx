@@ -144,7 +144,7 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const addFuelEntry = useCallback(
-    async (entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'row'>) => {
+    async (entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'pricePerLiter' | 'row'>) => {
       const tab = currentTabRef.current;
       if (!sheet || !tab) throw new Error('לא נמצאה לשונית רכב פעילה.');
       try {
@@ -160,7 +160,10 @@ export const CarDataProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const updateFuelEntry = useCallback(
-    async (row: number, entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'row'>) => {
+    async (
+      row: number,
+      entry: Omit<FuelEntry, 'efficiencyKmPerLiter' | 'pricePerLiter' | 'row'>,
+    ) => {
       const tab = currentTabRef.current;
       if (!sheet || !tab) throw new Error('לא נמצאה לשונית רכב פעילה.');
       try {

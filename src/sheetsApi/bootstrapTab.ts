@@ -17,6 +17,7 @@ import {
   SCHEMA_MARKER_LABEL,
   SCHEMA_VERSION,
   buildEfficiencyArrayFormula,
+  buildPricePerLiterArrayFormula,
   quoteSheetTitle,
   type CarInfoFields,
 } from './schema';
@@ -72,11 +73,16 @@ export const bootstrapCarTab = async ({
       values: [FUEL_LOG_HEADER],
     },
     {
-      // Single ARRAYFORMULA covering the whole efficiency column (see its
-      // doc comment in schema.ts) — written once here so any fill-up row,
-      // whether added through the app or typed directly into the sheet,
-      // is calculated by the sheet itself. `valueInputOption=USER_ENTERED`
-      // (used by `valuesBatchUpdate`) parses this string as a real formula.
+      // Two single-cell ARRAYFORMULAs, each covering their whole column
+      // (see their doc comments in schema.ts) — written once here so any
+      // fill-up row, whether added through the app or typed directly into
+      // the sheet, is calculated by the sheet itself.
+      // `valueInputOption=USER_ENTERED` (used by `valuesBatchUpdate`)
+      // parses these strings as real formulas.
+      range: `${quotedTitle}!E${FUEL_LOG_FIRST_DATA_ROW.toString()}`,
+      values: [[buildPricePerLiterArrayFormula()]],
+    },
+    {
       range: `${quotedTitle}!F${FUEL_LOG_FIRST_DATA_ROW.toString()}`,
       values: [[buildEfficiencyArrayFormula()]],
     },

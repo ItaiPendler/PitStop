@@ -123,3 +123,21 @@ export const buildEfficiencyArrayFormula = (): string => {
     `(B${first}:B${last}-B${prevFirst}:B${prevLast})/C${first}:C${last})))`
   );
 };
+
+/**
+ * The column-E ARRAYFORMULA written into cell E13 at bootstrap time,
+ * mirroring `buildEfficiencyArrayFormula` — computes price-per-liter from
+ * the total price (column D) and liters (column C) the user actually
+ * types, truncated (not rounded) to 2 decimal places:
+ *
+ *   - total price missing, or liters is 0 → blank
+ *   - otherwise → TRUNC(total_price / liters, 2)
+ */
+export const buildPricePerLiterArrayFormula = (): string => {
+  const first = FUEL_LOG_FIRST_DATA_ROW;
+  const last = FUEL_LOG_LAST_ROW;
+  return (
+    `=ARRAYFORMULA(IF((D${first}:D${last}="")+(C${first}:C${last}=0),"",` +
+    `TRUNC(D${first}:D${last}/C${first}:C${last},2)))`
+  );
+};

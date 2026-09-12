@@ -1,7 +1,8 @@
 ﻿/**
  * Reads and writes the fuel-log rows (data rows only, header excluded) for
- * a car tab — append/update/delete a fill-up. Column F (efficiency) is
- * always a formula the sheet computes itself (spec.md §6.2/§7.1).
+ * a car tab — append/update/delete a fill-up. Columns E (price/liter) and
+ * F (efficiency) are always ARRAYFORMULAs the sheet computes itself
+ * (spec.md §6.2/§7.1) — never written here, only at bootstrap.
  */
 import {
   FUEL_LOG_FIRST_DATA_ROW,
@@ -28,8 +29,8 @@ const toRowValues = (entry: FuelEntryValues): (number | string)[] => [
   entry.odometerKm,
   entry.liters,
   entry.totalPrice ?? '',
-  entry.pricePerLiter ?? '',
-  '', // column F is always the ARRAYFORMULA written once at bootstrap — never written here
+  '', // column E is always the price/liter ARRAYFORMULA written once at bootstrap — never written here
+  '', // column F is always the efficiency ARRAYFORMULA written once at bootstrap — never written here
   entry.notes ?? '',
 ];
 
@@ -76,9 +77,9 @@ export const getFuelLogRows = async (
 
 /**
  * Appends a new fill-up after the last existing row. Writes only columns
- * A-E and G — column F is never touched here, it's covered end-to-end by
- * the single ARRAYFORMULA written into F13 at bootstrap (schema.ts), which
- * also covers rows typed directly into the sheet by hand.
+ * A-D and G — columns E and F are never touched here, they're covered
+ * end-to-end by the two ARRAYFORMULAs written at bootstrap (schema.ts),
+ * which also cover rows typed directly into the sheet by hand.
  */
 export const appendFuelRow = async (
   accessToken: string,
@@ -91,8 +92,8 @@ export const appendFuelRow = async (
   const appended = await valuesAppend(
     accessToken,
     spreadsheetId,
-    `${quotedTitle}!A${FUEL_LOG_FIRST_DATA_ROW.toString()}:E`,
-    [values.slice(0, 5)],
+    `${quotedTitle}!A${FUEL_LOG_FIRST_DATA_ROW.toString()}:D`,
+    [values.slice(0, 4)],
   );
   const row = parseRowFromRange(appended.updates.updatedRange);
 
@@ -105,7 +106,7 @@ export const appendFuelRow = async (
   return row;
 };
 
-/** Overwrites an existing row's data (A-E, G); the efficiency formula in F is left untouched. */
+/** Overwrites an existing row's data (A-D, G); the price/liter and efficiency formulas (E, F) are left untouched. */
 export const updateFuelRow = (
   accessToken: string,
   spreadsheetId: string,
@@ -116,7 +117,7 @@ export const updateFuelRow = (
   const quotedTitle = quoteSheetTitle(sheetTitle);
   const values = toRowValues(entry);
   return valuesBatchUpdate(accessToken, spreadsheetId, [
-    { range: `${quotedTitle}!A${row.toString()}:E${row.toString()}`, values: [values.slice(0, 5)] },
+    { range: `${quotedTitle}!A${row.toString()}:D${row.toString()}`, values: [values.slice(0, 4)] },
     { range: `${quotedTitle}!G${row.toString()}`, values: [[values[6]]] },
   ]);
 };
