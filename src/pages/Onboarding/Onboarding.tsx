@@ -21,6 +21,7 @@ export const OnboardingPage = () => {
   const navigate = useNavigate();
 
   const isSignedIn = status === AuthStatus.SignedIn;
+  const isRestoring = status === AuthStatus.Restoring;
   const isReconnectFlow = !isSignedIn && Boolean(sheet) && Boolean(authError);
   const isFullyConnected = isSignedIn && Boolean(sheet);
 
@@ -29,6 +30,14 @@ export const OnboardingPage = () => {
   }, [isFullyConnected, navigate]);
 
   if (isFullyConnected) return null;
+
+  if (isRestoring) {
+    return (
+      <div className="flex min-h-svh w-full items-center justify-center p-4">
+        <BodyText>בודקים אם יש חיבור פעיל ל-Google…</BodyText>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col justify-center gap-6 p-4">

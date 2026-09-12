@@ -42,10 +42,6 @@ const getTokenClient = async (): Promise<GisTokenClient> => {
 
   tokenClient = window.google!.accounts.oauth2.initTokenClient({
     callback: (response) => {
-      // TEMPORARY DIAGNOSTIC LOGGING — remove once the popup_closed bug is
-      // root-caused. Dumps the raw GIS response so we can see exactly what
-      // Google reports on the deployed site.
-      console.log('[PitStop debug] token client callback', response);
       if (response.error) {
         pending?.reject(new Error(response.error));
       } else {
@@ -55,10 +51,6 @@ const getTokenClient = async (): Promise<GisTokenClient> => {
     },
     client_id: CLIENT_ID,
     error_callback: (error) => {
-      // TEMPORARY DIAGNOSTIC LOGGING — remove once the popup_closed bug is
-      // root-caused. Dumps the raw GIS error so we can see exactly what
-      // Google reports on the deployed site.
-      console.log('[PitStop debug] token client error_callback', error);
       pending?.reject(new Error(error.message ?? error.type));
       pending = undefined;
     },
@@ -75,11 +67,7 @@ export interface RequestAccessTokenOptions {
 export const requestAccessToken = async (
   options: RequestAccessTokenOptions = {},
 ): Promise<GisTokenResponse> => {
-  // TEMPORARY DIAGNOSTIC LOGGING — remove once the popup_closed bug is
-  // root-caused. Times the gap between the call and the actual popup-open.
-  console.log('[PitStop debug] requestAccessToken called', { t: performance.now() });
   const client = await getTokenClient();
-  console.log('[PitStop debug] token client ready, opening popup', { t: performance.now() });
 
   return new Promise((resolve, reject) => {
     pending = { reject, resolve };

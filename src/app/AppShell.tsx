@@ -7,7 +7,7 @@ import { NAV_ROUTES, ROUTES } from './routes';
 const AuthControl = () => {
   const { signIn, signOut, status } = useAuth();
   const isSignedIn = status === AuthStatus.SignedIn;
-  const isSigningIn = status === AuthStatus.SigningIn;
+  const isSigningIn = status === AuthStatus.SigningIn || status === AuthStatus.Restoring;
 
   return isSignedIn ? (
     <button onClick={() => void signOut()} type="button">
