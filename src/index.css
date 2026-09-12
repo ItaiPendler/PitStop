@@ -73,7 +73,7 @@ body {
    See spec.md §10. Kept as a utility class since it's a bidi concern,
    not expressible as a single Tailwind utility. */
 .ltr-num {
-  unicode-bidi: plaintext;
+  unicode-bidi: isolate;
   direction: ltr;
   display: inline-block;
   @apply font-mono;

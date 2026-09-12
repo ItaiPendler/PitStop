@@ -46,7 +46,7 @@ export const Gauge = ({ average, className, max, min, unit = 'ק״מ לליטר'
 
   return (
     <div className={cn('mx-auto w-full max-w-80', className)}>
-      <svg viewBox="0 0 200 150" className="block w-full overflow-visible">
+      <svg viewBox="0 0 200 170" className="block w-full overflow-visible">
         <path
           d={arcPath(TRACK_R, 180, 120)}
           className="fill-none stroke-tertiary/55"
@@ -124,16 +124,16 @@ export const Gauge = ({ average, className, max, min, unit = 'ק״מ לליטר'
 
         <text
           x={100}
-          y={120}
+          y={134}
           textAnchor="middle"
-          className="fill-white font-mono text-[34px] font-bold"
-          style={{ letterSpacing: '-0.02em' }}
+          className="fill-white font-mono text-[30px] font-bold"
+          style={{ direction: 'ltr', letterSpacing: '-0.02em', unicodeBidi: 'isolate' }}
         >
           {value.toFixed(1)}
         </text>
         <text
           x={100}
-          y={138}
+          y={154}
           textAnchor="middle"
           className="fill-on-surface-variant font-hebrew text-xs font-medium"
         >
