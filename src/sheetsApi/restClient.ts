@@ -72,9 +72,16 @@ export const valuesGet = async (
   spreadsheetId: string,
   range: string,
 ): Promise<SheetCellValue[][]> => {
+  // Deliberately omit `dateTimeRenderOption` so it keeps the API default of
+  // `SERIAL_NUMBER`: date cells come back as plain numbers (days since
+  // 1899-12-30), the same units as every other numeric cell. The
+  // alternative, `FORMATTED_STRING`, renders dates using the spreadsheet's
+  // locale-dependent number format (e.g. `M/d/yyyy` vs `d/M/yyyy`), which is
+  // ambiguous to parse back out reliably — see `src/models` for the serial
+  // <-> ISO-date conversion this relies on.
   const data = await request<ValueRange>(
     accessToken,
-    `/${spreadsheetId}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING`,
+    `/${spreadsheetId}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`,
   );
   return data.values ?? [];
 };

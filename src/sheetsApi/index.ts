@@ -1,4 +1,5 @@
 ﻿export { bootstrapCarTab } from './bootstrapTab';
+export { getCarInfo } from './carInfo';
 export { detectTabSchema, type TabSchemaStatus } from './detectSchema';
 export { SchemaError, SchemaErrorReason, SheetsApiError } from './errors';
 export {
@@ -8,6 +9,7 @@ export {
   updateFuelRow,
   type FuelLogRow,
 } from './fuelRows';
+export { type SheetCellValue } from './restClient';
 export {
   CAR_INFO_ROW_LABELS,
   FUEL_LOG_HEADER,

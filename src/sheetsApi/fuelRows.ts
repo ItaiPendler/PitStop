@@ -7,6 +7,7 @@ import {
   FUEL_LOG_FIRST_DATA_ROW,
   buildEfficiencyFormula,
   quoteSheetTitle,
+  serialDateToIso,
   type FuelEntryValues,
 } from './schema';
 import {
@@ -29,7 +30,7 @@ const toRowValues = (entry: FuelEntryValues): (number | string)[] => [
   entry.liters,
   entry.totalPrice ?? '',
   entry.pricePerLiter ?? '',
-  '', // column F is always a formula, written separately below
+  '', // column F is always a formula, written separately below — any `entry.efficiencyKmPerLiter` is ignored on write
   entry.notes ?? '',
 ];
 
@@ -37,7 +38,8 @@ const parseOptionalNumber = (cell: SheetCellValue | undefined): number | undefin
   cell === '' || cell == null ? undefined : Number(cell);
 
 const fromRowValues = (raw: SheetCellValue[]): FuelEntryValues => ({
-  date: String(raw[0] ?? ''),
+  date: serialDateToIso(raw[0] === '' || raw[0] == null ? '' : (raw[0] as string | number)),
+  efficiencyKmPerLiter: parseOptionalNumber(raw[5]),
   liters: Number(raw[2] ?? 0),
   notes: raw[6] === '' || raw[6] == null ? undefined : String(raw[6]),
   odometerKm: Number(raw[1] ?? 0),
