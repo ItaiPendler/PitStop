@@ -1,4 +1,5 @@
 import { type ChangeEvent, type FormEvent, useMemo, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ROUTES } from '../../app/routes';
 import { useCarData } from '../../carData';
@@ -308,8 +309,9 @@ const FuelingForm = (props: FuelingFormProps) => {
   return (
     <Card className="flex flex-col gap-5" variant="hero">
       <div className="flex flex-col gap-1">
-        <h1 className="text-base font-semibold text-on-surface">
-          {isEditMode ? 'עריכת תדלוק' : 'הוספת תדלוק'}
+        <h1 className="flex items-center gap-2 text-base font-semibold text-on-surface">
+          <Plus aria-hidden className="h-5 w-5 shrink-0 text-primary" strokeWidth={2.5} />
+          <span className="sr-only">{isEditMode ? 'עריכת תדלוק' : 'הוספת תדלוק'}</span>
         </h1>
         <p className="text-sm text-on-surface-variant">
           {isEditMode
